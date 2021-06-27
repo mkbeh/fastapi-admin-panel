@@ -1,0 +1,11 @@
+{
+    "python.pythonPath": "/home/cyberpunk/.pyenv/versions/fastapi-admin-panel/bin/python",
+    "python.analysis.extraPaths": [
+        // "backend",
+        // "backend/app",
+        "/home/cyberpunk/PycharmProjects/OwnProjects/fastapi-admin-panel/backend",
+        "/home/cyberpunk/PycharmProjects/OwnProjects/fastapi-admin-panel/backend/app",
+        "/home/cyberpunk/.pyenv/versions/fastapi-admin-panel/lib/python3.9/site-packages/",
+    ],
+    "workbench.editor.enablePreview": false,
+}
