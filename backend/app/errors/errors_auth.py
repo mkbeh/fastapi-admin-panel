@@ -2,7 +2,7 @@ from .common import AppException
 
 
 class AuthError(AppException):
-    """error codes of auth processing logic"""
+    """Error codes of auth processing logic"""
 
 
 class LoginError(AuthError):

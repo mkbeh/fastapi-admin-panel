@@ -1,4 +1,4 @@
 
 class AppException(Exception):
-    """ Исключение в логике обработки """
+    """Errors of processing logic"""
     status_code = 400

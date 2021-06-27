@@ -7,7 +7,7 @@ from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from extra.enums import Roles, RegistrationTypes, SocialTypes
 from db.model import Model
-from db.mixins import TimestampMixin
+from db.mixins import TimestampsMixin
 from core.security import get_password_hash, verify_password
 
 
@@ -19,7 +19,9 @@ account_role = Table(
 )
 
 
-class Account(TimestampMixin, Model):
+class Account(Model, TimestampsMixin):
+    __repr_attrs__ = ['email']
+
     id = Column(Integer, primary_key=True, index=True)
     fullname = Column(String(50), index=True, nullable=True)
     email = Column(String(200), unique=True, index=True, nullable=True)
@@ -35,6 +37,8 @@ class Account(TimestampMixin, Model):
 
 
 class Role(Model):
+    __repr_attrs__ = ['guid']
+
     id = Column(Integer, primary_key=True, index=True)
     guid = Column(String(100), unique=True, index=True)
     name = Column(Enum(Roles, length=100), unique=True, nullable=False, index=True)
@@ -45,6 +49,8 @@ class Role(Model):
 
 
 class AuthorizationData(Model):
+    __repr_attrs__ = ['login']
+
     id = Column(Integer, primary_key=True, index=True)
     login = Column(String(200), index=True)
     _password = Column(String(200))

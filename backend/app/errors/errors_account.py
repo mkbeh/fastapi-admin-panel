@@ -2,7 +2,7 @@ from .common import AppException
 
 
 class AccountError(AppException):
-    """error codes of account processing logic"""
+    """Error codes of account processing logic"""
 
 
 class AccountAlreadyExist(AccountError):

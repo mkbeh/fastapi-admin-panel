@@ -15,7 +15,7 @@ from core.security import decode_token
 http_bearer = HTTPBearer(auto_error=False)
 
 
-async def get_account_id_from_token(
+def get_account_id_from_token(
     token: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
 ) -> int:
     """ Получение токена из заголовков или cookie """

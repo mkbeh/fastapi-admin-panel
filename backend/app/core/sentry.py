@@ -36,7 +36,7 @@ def init(app):
 async def send_data(request, exception) -> None:
     """Конфигурирует и отправляет данные об ошибках и исключениях в sentry."""
     try:
-        account_id = await deps_auth.get_account_id_from_token(request)
+        account_id = deps_auth.get_account_id_from_token(request)
     except HTTPException:
         return
 
