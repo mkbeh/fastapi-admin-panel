@@ -16,3 +16,7 @@ class BadToken(AuthError):
 
 class TokenExpired(AuthError):
     """Auth token is expired"""
+
+
+class BadConfirmationCode(AuthError):
+    """Bad confirmation code"""

@@ -82,7 +82,7 @@ def verify_confirmation_code(code: str, *fields: Tuple[str]) -> Optional[dict]:
             return data
     except itsdangerous.exc.SignatureExpired:
         # code is too old
-        return None
+        raise errors.BadConfirmationCode
     except itsdangerous.exc.BadSignature:
         # someone tampered the code
-        return None
+        raise errors.BadConfirmationCode
