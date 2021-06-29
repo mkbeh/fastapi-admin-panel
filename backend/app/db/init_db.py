@@ -15,8 +15,8 @@ from .sessions import engine
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("database")
 
-max_tries = 60 * 5  # 5 minutes
-wait_seconds = 1
+max_tries = 3  
+wait_seconds = 5 * 60   # 5 minutes
 
 convention = {
     "ix": "ix_%(column_0_label)s",
