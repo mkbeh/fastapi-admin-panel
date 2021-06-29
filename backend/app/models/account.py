@@ -3,6 +3,7 @@ from sqlalchemy import (
     Enum, ForeignKey, Table,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.future import select
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 
 from extra.enums import Roles, RegistrationTypes, SocialTypes
@@ -35,6 +36,28 @@ class Account(Model, TimestampsMixin):
 
     __mapper_args__ = {"eager_defaults": True}
 
+    @classmethod
+    async def create(
+        cls,
+        db,
+        password: str,
+        role: Roles = Roles.customer,
+        registration_type: RegistrationTypes = RegistrationTypes.forms,
+        social_type=None,
+        external_id=None,
+        **fields
+    ):
+        role = await select(Role).filter_by(name=role).scalar_one(db)
+        account = await cls(roles=[role], **fields).save(db)
+        auth_data = await AuthorizationData(
+            login=fields.get('email') or fields.get('phone'),
+            password=password,
+            registration_type=registration_type,
+            account_id=account.id,
+        ).save(db)
+
+        return account
+
 
 class Role(Model):
     __repr_attrs__ = ['guid']
@@ -55,7 +78,7 @@ class AuthorizationData(Model):
     login = Column(String(200), index=True)
     _password = Column(String(200))
     registration_type = Column(Enum(RegistrationTypes, length=100), nullable=False, index=True)
-    is_active = Column(Boolean(), default=True)
+    is_active = Column(Boolean(), default=False)
 
     account_id = Column(Integer, ForeignKey('account.id'), nullable=False)
     account = relationship('Account', back_populates='auths')

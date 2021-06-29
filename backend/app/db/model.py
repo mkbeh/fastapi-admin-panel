@@ -3,11 +3,11 @@ from typing import Any
 
 from sqlalchemy.ext.declarative import as_declarative, declared_attr
 
-from .mixins import ReprMixin
+from .mixins import ReprMixin, CRUDMixin
 
 
 @as_declarative()
-class Model(ReprMixin):
+class Model(ReprMixin, CRUDMixin):
     id: Any
     __name__: str
 
