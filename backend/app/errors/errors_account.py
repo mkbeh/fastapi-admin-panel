@@ -16,3 +16,7 @@ class NotEnoughPrivileges(AccountError):
 
 class InactiveAccount(AccountError):
     """Inactive account"""
+
+
+class AccountIsNotConfirmed(AccountError):
+    """ Account not verified """

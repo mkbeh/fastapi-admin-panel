@@ -15,8 +15,8 @@ from .sessions import engine
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("database")
 
-max_tries = 3  
-wait_seconds = 5 * 60   # 5 minutes
+MAX_RETIRES = 3
+WAIT_SECONDS = 5 * 60   # 5 minutes
 
 convention = {
     "ix": "ix_%(column_0_label)s",
@@ -28,8 +28,8 @@ convention = {
 
 
 @retry(
-    stop=stop_after_attempt(max_tries),
-    wait=wait_fixed(wait_seconds),
+    stop=stop_after_attempt(MAX_RETIRES),
+    wait=wait_fixed(WAIT_SECONDS),
     before=before_log(logger, logging.INFO),
     after=after_log(logger, logging.WARN),
 )

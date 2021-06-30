@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 
@@ -29,8 +31,8 @@ async def create_initial_superuser():
         ).scalar_one_or_none()
 
         if auth_data:
-            if not auth_data.is_active:
-                await auth_data.update(db=db, is_active=True)
+            if not auth_data.is_confirmed:
+                await auth_data.update(db=db, confirmed_at=datetime.utcnow())
             account = auth_data.account
         else:
             account = await models.Account.create(

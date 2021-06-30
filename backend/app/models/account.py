@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Boolean, Column, Integer, String,
+    Column, Integer, String, DateTime,
     Enum, ForeignKey, Table,
 )
 from sqlalchemy.orm import relationship
@@ -21,7 +21,7 @@ account_role = Table(
 
 
 class Account(Model, TimestampsMixin):
-    __repr_attrs__ = ['email']
+    __repr_attrs__ = ['email', 'phone']
 
     id = Column(Integer, primary_key=True, index=True)
     fullname = Column(String(50), index=True, nullable=True)
@@ -30,6 +30,7 @@ class Account(Model, TimestampsMixin):
 
     auths = relationship('AuthorizationData',
                          back_populates='account',
+                         lazy='joined',
                          cascade='all, delete',
                          passive_deletes=True)
     roles = relationship('Role',
@@ -39,6 +40,14 @@ class Account(Model, TimestampsMixin):
                          cascade='all, delete')
 
     __mapper_args__ = {"eager_defaults": True}
+
+    @hybrid_property
+    def is_active(self) -> bool:
+        return any(a.confirmed_at for a in self.auths)
+
+    @hybrid_method
+    def has_role(self, role: Roles) -> bool:
+        return role in [r.name for r in self.roles]
 
     @classmethod
     async def create(
@@ -91,7 +100,7 @@ class AuthorizationData(Model):
     login = Column(String(200), index=True)
     _password = Column(String(200))
     registration_type = Column(Enum(RegistrationTypes, length=100), nullable=False, index=True)
-    is_active = Column(Boolean(), default=False)
+    confirmed_at = Column(DateTime, nullable=True)
 
     account_id = Column(Integer, ForeignKey('account.id', ondelete='CASCADE'), nullable=False)
     account = relationship('Account', back_populates='auths')
@@ -99,6 +108,10 @@ class AuthorizationData(Model):
                            back_populates='auth_data',
                            cascade='all, delete',
                            passive_deletes=True)
+
+    @hybrid_property
+    def is_confirmed(self):
+        return bool(self.confirmed_at)
 
     @hybrid_property
     def password(self):

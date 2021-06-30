@@ -1,10 +1,10 @@
-from typing import Any, List
+from typing import Any
 from fastapi import APIRouter, Depends
 
 import errors
 import schemas
 
-from models import Account, Role
+from models import Account
 from api.deps import deps_common, deps_account
 from api.responses import with_errors
 
