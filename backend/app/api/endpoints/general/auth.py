@@ -9,7 +9,7 @@ import schemas
 
 from core import security
 from helpers import help_login
-from api.deps import deps_auth
+from api.deps import deps_auth, deps_account
 from api.responses import with_errors
 
 
@@ -49,3 +49,11 @@ async def refresh_token(
 ) -> Any:
     """Refresh access and refresh tokens pair via refresh token."""
     return security.generate_token(account.id)
+
+
+@router.get('user_is_auth')
+async def user_is_auth(
+    _: models.Account = Depends(deps_account.get_current_active_user)
+):
+    """Token validation of active user."""
+    return schemas.ResultResponse()

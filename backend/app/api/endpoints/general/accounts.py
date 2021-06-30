@@ -12,14 +12,20 @@ from api.responses import with_errors
 router = APIRouter()
 
 
-@router.get('/me', response_model=schemas.Account)
+@router.get(
+    '/me',
+    response_model=schemas.Account
+)
 async def get_me(
     account: Account = Depends(deps_account.get_current_active_superuser),
 ) -> Any:
     return account
 
 
-@router.get("/{object_id}", response_model=schemas.Account)
+@router.get(
+    "/{object_id}",
+    response_model=schemas.Account
+)
 async def read_account_by_id(
     object_id: int,
     account: Account = Depends(deps_account.get_current_active_superuser),
@@ -28,7 +34,10 @@ async def read_account_by_id(
     pass
 
 
-@router.get('/', response_model=schemas.ResultSchema)
+@router.get(
+    '/',
+    response_model=schemas.ResultSchema
+)
 async def read_accounts(
     commons: deps_common.CommonQueryParams = Depends(),
     account: Account = Depends(deps_account.get_current_active_superuser),
@@ -40,7 +49,6 @@ async def read_accounts(
 @router.post(
     "/",
     response_model=schemas.Account,
-    response_model_include={'id'},
     responses=with_errors(errors.AccountAlreadyExist),
 )
 async def create_account(
@@ -55,7 +63,6 @@ async def create_account(
 @router.put(
     '/',
     response_model=schemas.Account,
-    response_model_include={'id'}
 )
 async def update_account(
     *,
@@ -67,7 +74,10 @@ async def update_account(
     pass
 
 
-@router.delete('/', response_model=schemas.ResultResponse)
+@router.delete(
+    '/',
+    response_model=schemas.ResultResponse
+)
 async def delete_object_by_id(
     object_id: int,
     current_account: Account = Depends(deps_account.get_current_active_superuser),

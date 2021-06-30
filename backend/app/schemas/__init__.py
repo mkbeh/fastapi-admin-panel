@@ -3,12 +3,13 @@ from schemas.common import (
     ResultMeta,
     ResultResponse,
 )
-
-# from schemas.general import *
 from schemas.general.token import (
     AuthToken,
     AuthTokenPayload,
     RefreshTokenParams,
+)
+from schemas.general.auth import (
+    LoginParams,
 )
 from schemas.general.account import (
     AccountCreate,
@@ -16,6 +17,9 @@ from schemas.general.account import (
     AccountInDB,
     Account,
 )
-from schemas.general.auth import (
-    LoginParams,
+from schemas.general.role import (
+    RoleCreate,
+    RoleUpdate,
+    RoleInDB,
+    Role,
 )

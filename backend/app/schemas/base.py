@@ -8,6 +8,7 @@ class ConfiguredBaseModel(PydanticModel):
         json_loads = ujson.loads
         json_dumps = ujson.dumps
         min_anystr_length = 0
+        orm_mode = True
 
 
 class EmptyStrValidator(PydanticModel):
