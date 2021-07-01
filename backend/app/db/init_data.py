@@ -14,21 +14,19 @@ async def create_initial_roles():
         for role in enums.Roles:
             is_role = await models.Role.exists(name=role).scalar(db)
             if not is_role:
-                await models.Role(guid=role.name, name=role.value).save(db)
+                await models.Role.create(db, guid=role.name, name=role.value)
 
 
 async def create_initial_superuser():
     async with in_transaction() as db:
-        auth_data = (
-            await select(models.AuthorizationData)
+        auth_data = await select(models.AuthorizationData) \
             .filter_by(
                 login=settings.FIRST_SUPERUSER_LOGIN,
                 registration_type=enums.RegistrationTypes.forms,
-            )
-            .join(models.AuthorizationData.account)
-            .options(joinedload(models.AuthorizationData.account))
-            .unique(db)
-        ).scalar_one_or_none()
+            ) \
+            .join(models.AuthorizationData.account) \
+            .options(joinedload(models.AuthorizationData.account)) \
+            .scalar_one_or_none(db)
 
         if auth_data:
             if not auth_data.is_confirmed:

@@ -28,15 +28,22 @@ def exists(self):
     return sa.exists(self).select()
 
 
+async def execute(
+    self,
+    session: AsyncSession,
+    parameters: Optional[Mapping] = None,
+    execution_options: Mapping = sa.util.EMPTY_DICT,
+):
+    return await session.execute(self, parameters, execution_options)
+
+
 async def unique(
     self,
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
 ) -> Optional[Row]:
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def fetchone(
@@ -60,9 +67,7 @@ async def fetchone(
     :return: a :class:`.Row` object if no filters are applied, or None
      if no rows remain.
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def fetchmany(
@@ -88,9 +93,7 @@ async def fetchmany(
         :meth:`_asyncio.AsyncResult.partitions`
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def all(
@@ -107,9 +110,7 @@ async def all(
     :return: a list of :class:`.Row` objects.
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def first(
@@ -138,9 +139,7 @@ async def first(
         :meth:`_asyncio.AsyncResult.one`
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def one_or_none(
@@ -168,9 +167,7 @@ async def one_or_none(
         :meth:`_asyncio.AsyncResult.one`
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def scalar_one(
@@ -191,9 +188,7 @@ async def scalar_one(
         :meth:`_asyncio.AsyncResult.scalars`
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def scalar_one_or_none(
@@ -214,9 +209,7 @@ async def scalar_one_or_none(
         :meth:`_asyncio.AsyncResult.scalars`
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def one(
@@ -253,9 +246,7 @@ async def one(
         :meth:`_asyncio.AsyncResult.scalar_one`
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def scalar(
@@ -277,6 +268,26 @@ async def scalar(
     :return: a Python scalar value , or None if no rows remain.
 
     """
-    return await async_call(
-        self, session, parameters, execution_options
-    )
+    return await async_call(self, session, parameters, execution_options)
+
+
+async def scalars(
+    self,
+    session: AsyncSession = None,
+    parameters: Optional[Mapping] = None,
+    execution_options: Mapping = sa.util.EMPTY_DICT,
+):
+    return await async_call(self, session, parameters, execution_options)
+
+
+async def scalars_all(
+    self,
+    session: AsyncSession = None,
+    parameters: Optional[Mapping] = None,
+    execution_options: Mapping = sa.util.EMPTY_DICT,
+):
+    return (
+        await async_call(
+            self, session, "scalars", parameters, execution_options
+        )
+    ).all()

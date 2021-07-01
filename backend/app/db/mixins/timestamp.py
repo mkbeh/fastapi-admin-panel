@@ -11,12 +11,12 @@ class TimestampsMixin:
     __datetime_func__ = sa.func.now()
 
     created_at = sa.Column(__created_at_name__,
-                           sa.TIMESTAMP(timezone=False),
-                           default=__datetime_func__,
+                           sa.DateTime(timezone=False),
+                           server_default=__datetime_func__,
                            nullable=False)
 
     updated_at = sa.Column(__updated_at_name__,
-                           sa.TIMESTAMP(timezone=False),
-                           default=__datetime_func__,
+                           sa.DateTime(timezone=False),
+                           server_default=__datetime_func__,
                            onupdate=__datetime_func__,
                            nullable=False)

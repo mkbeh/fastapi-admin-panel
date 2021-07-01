@@ -13,9 +13,7 @@ async def get_current_user(
     db: AsyncSession = Depends(db_session),
     account_id: int = Depends(get_user_id_from_token),
 ) -> Account:
-    return (
-        await select(Account).filter_by(id=account_id).unique(db)
-    ).scalar_one()
+    return await select(Account).filter_by(id=account_id).scalar_one(db)
 
 
 async def get_current_active_user(

@@ -38,15 +38,13 @@ def get_user_id_from_token(
 
 
 async def verify_refresh_token(
-    db: AsyncSession = Depends(db_session),
     params: schemas.RefreshTokenParams = Body(...),
+    db: AsyncSession = Depends(db_session),
 ) -> Account:
     token_payload = decode_token(
         token=params.refresh_token,
         purpose=enums.TokenPurpose.refresh
     )
-    return (
-        await select(Account)
-        .filter_by(id=token_payload.sub)
-        .unique(db)
-    ).scalar_one()
+    return await select(Account) \
+        .filter_by(id=token_payload.sub) \
+        .scalar_one(db)

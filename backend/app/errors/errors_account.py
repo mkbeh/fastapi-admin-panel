@@ -19,4 +19,4 @@ class InactiveAccount(AccountError):
 
 
 class AccountIsNotConfirmed(AccountError):
-    """ Account not verified """
+    """Account not verified"""

@@ -13,6 +13,7 @@ async def async_call(
     execution_options: Mapping = util.EMPTY_DICT,
 ):
     result = await session.execute(self, parameters, execution_options)
+    result = result.unique()
 
     method_name = method_name if method_name else inspect.stack()[1][3]
     if row_method := getattr(result, method_name, None):

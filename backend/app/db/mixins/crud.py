@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from sqlalchemy import select, exists
@@ -31,7 +32,7 @@ class CRUDMixin(InspectionMixin):
         db: AsyncSession,
         flush: bool = True,
         refresh: bool = False
-    ) -> 'Model':
+    ) -> Model:
         db.add(self)
         if flush:
             await db.flush()
@@ -39,16 +40,24 @@ class CRUDMixin(InspectionMixin):
             await db.refresh(self)
         return self
 
+    @classmethod
+    async def create(
+        cls,
+        db: AsyncSession,
+        **fields
+    ) -> Model:
+        return await cls(**fields).save(db)
+
     async def update(
         self,
         db: AsyncSession,
         **fields
     ):
         self.fill(**fields)
-        await self.save(db)
+        return await self.save(db)
 
     @classmethod
-    def exists(cls, **fields) -> bool:
+    def exists(cls, **fields):
         """
         Syntactic sugar for exists.
 
