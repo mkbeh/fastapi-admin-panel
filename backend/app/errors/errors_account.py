@@ -9,13 +9,18 @@ class AccountAlreadyExist(AccountError):
     """Account with this email or phone exists"""
 
 
+class AccountNotFound(AccountError):
+    """Account not found"""
+    status_code = 401
+
+
 class EmailIsExists(AccountError):
     """This email is already in use in the system"""
 
 
 class NotEnoughPrivileges(AccountError):
     """The account doesn't have enough privileges"""
-    status_code = 401
+    status_code = 403
 
 
 class InactiveAccount(AccountError):

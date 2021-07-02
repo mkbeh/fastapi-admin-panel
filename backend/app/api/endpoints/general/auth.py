@@ -56,7 +56,10 @@ async def refresh_token(
     return security.generate_token(account.id)
 
 
-@router.get('/user_is_auth')
+@router.get(
+    '/user_is_auth',
+    responses=with_errors(errors.BadToken, errors.NotEnoughPrivileges)
+)
 async def user_is_auth(
     _: models.Account = Depends(deps_account.get_current_active_user)
 ):

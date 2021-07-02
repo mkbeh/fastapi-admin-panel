@@ -13,7 +13,10 @@ async def get_current_user(
     db: AsyncSession = Depends(db_session),
     account_id: int = Depends(get_user_id_from_token),
 ) -> Account:
-    return await select(Account).filter_by(id=account_id).scalar_one(db)
+    account = await select(Account).filter_by(id=account_id).scalar_one_or_none(db)
+    if not account:
+        raise errors.AccountNotFound
+    return account
 
 
 async def get_current_active_user(

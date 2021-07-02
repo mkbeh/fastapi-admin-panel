@@ -6,7 +6,7 @@ class AuthError(AppException):
 
 
 class LoginError(AuthError):
-    """Incorrect username or password"""
+    """Incorrect login or password"""
 
 
 class BadToken(AuthError):
@@ -16,6 +16,7 @@ class BadToken(AuthError):
 
 class TokenExpired(AuthError):
     """Auth token is expired"""
+    status_code = 401
 
 
 class BadConfirmationCode(AuthError):
