@@ -2,43 +2,43 @@ from typing import List, Optional
 from pydantic import Field, EmailStr
 
 from extra.enums import SocialTypes
-from schemas.base import ConfiguredBaseModel
+from schemas.base import BaseModel
 
 
-class LoginParams(ConfiguredBaseModel):
+class LoginParams(BaseModel):
     login: str
     password: str = Field(..., min_length=8, max_length=40, title="password")
 
 
-class ConfirmAccountParams(ConfiguredBaseModel):
+class ConfirmAccountParams(BaseModel):
     code: str
 
 
-class ChangePasswordParams(ConfiguredBaseModel):
+class ChangePasswordParams(BaseModel):
     code: str
     new_password: str
 
 
-class SendEmailChangePassword(ConfiguredBaseModel):
+class SendEmailChangePassword(BaseModel):
     login: EmailStr
 
 
-class GetTokenBySocialCode(ConfiguredBaseModel):
+class GetTokenBySocialCode(BaseModel):
     code: str
 
 
-class RequestConfirmationEmailBySocialCode(ConfiguredBaseModel):
+class RequestConfirmationEmailBySocialCode(BaseModel):
     code: str
     email: EmailStr
 
 
-class RegistationFromSocialBase(ConfiguredBaseModel):
+class RegistationFromSocialBase(BaseModel):
     _social_type: SocialTypes
     # this is our account id
     application_account_id: Optional[int] = None
 
 
-class GetVKAccessTokenBadRequest(ConfiguredBaseModel):
+class GetVKAccessTokenBadRequest(BaseModel):
     error: str
     error_description: str
 
@@ -54,13 +54,13 @@ class RegistrationFromSocialVK(RegistationFromSocialBase):
         return self._social_type, self.user_id
 
 
-class GetFacebookAccessTokenBadRequest(ConfiguredBaseModel):
+class GetFacebookAccessTokenBadRequest(BaseModel):
     error_reason: str
     error: str
     error_description: str
 
 
-class FacebookAccessTokenRequest(ConfiguredBaseModel):
+class FacebookAccessTokenRequest(BaseModel):
     access_token: str
     token_type: str
     expires_in: int
@@ -76,7 +76,7 @@ class RegistrationFromSocialFacebook(RegistationFromSocialBase):
         return self._social_type, self.id
 
 
-class GoogleAccessTokenRequest(ConfiguredBaseModel):
+class GoogleAccessTokenRequest(BaseModel):
     access_token: str
     token_type: str
     expires_in: int

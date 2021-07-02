@@ -3,12 +3,12 @@ from datetime import datetime
 from pydantic import EmailStr, Field, validator
 
 from extra import enums
-from schemas.base import ConfiguredBaseModel, EmptyStrValidator
+from schemas.base import BaseModel, EmptyStrValidator
 from schemas.general.role import RoleInDB
 
 
 # Shared properties.
-class AccountBase(ConfiguredBaseModel):
+class AccountBase(BaseModel):
     fullname: str = Field(None, title='Full name')
     email: EmailStr = Field(None, title='Email')
     phone: str = Field(None, title='Phone')
@@ -52,6 +52,6 @@ class AccountInDB(AccountInDBBase):
 
 
 # Properties to receive via API on creation open.
-class AccountCreateOpen(ConfiguredBaseModel):
+class AccountCreateOpen(BaseModel):
     email: EmailStr = Field(..., title='Email')
     password: str = Field(..., min_length=6, max_length=255, title='Пароль')

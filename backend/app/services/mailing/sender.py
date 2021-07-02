@@ -7,7 +7,7 @@ import jinja2
 from pydantic import EmailStr
 
 from core.settings import settings
-from schemas.base import ConfiguredBaseModel
+from schemas.base import BaseModel
 
 
 template_dirs = [
@@ -23,7 +23,7 @@ logger = logging.getLogger("service(mailing)")
 class BaseMessage:
     template_name: Optional[str] = None
 
-    class validation(ConfiguredBaseModel):
+    class validation(BaseModel):
         email: EmailStr
         subject: str = settings.COMPANY_NAME
 

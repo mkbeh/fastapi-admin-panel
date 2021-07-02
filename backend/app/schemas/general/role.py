@@ -2,11 +2,11 @@ from typing import Optional
 from pydantic import Field
 
 from extra.enums import Roles
-from schemas.base import ConfiguredBaseModel, EmptyStrValidator
+from schemas.base import BaseModel, EmptyStrValidator
 
 
 # Shared properties.
-class RoleBase(ConfiguredBaseModel):
+class RoleBase(BaseModel):
     name: Roles = Field(None, title='name')
 
 

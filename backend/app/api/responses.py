@@ -5,7 +5,7 @@ from fastapi import HTTPException
 
 import errors
 from errors.common import AppException
-from schemas.base import ConfiguredBaseModel
+from schemas.base import BaseModel
 
 
 class StrEnum(str, Enum):
@@ -15,7 +15,7 @@ class StrEnum(str, Enum):
 Errors = StrEnum('Errors', {key: key for key, val in errors.__dict__.items() if callable(val) or isinstance(val, Exception)})
 
 
-class Error(ConfiguredBaseModel):
+class Error(BaseModel):
     code: Errors    # type: ignore
     detail: str
 
