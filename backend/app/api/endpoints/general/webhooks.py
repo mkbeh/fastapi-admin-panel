@@ -64,3 +64,20 @@ async def social_login(
     await socials.registration(db, schema, code)
 
     return RedirectResponse(f'/connect?code={code}')
+
+
+@router.post(
+    '/change_password',
+    response_model=schemas.ResultResponse,
+    responses=with_errors(errors.BadConfirmationCode)
+)
+async def change_password(
+    params: schemas.ChangePasswordParams,
+    db: AsyncSession = Depends(deps_auth.db_session)
+):
+    """Account password recovery"""
+    auth_data = await help_auth.change_password(db, params)
+    await messages.PasswordWasChangedMessage(
+        email=auth_data.login
+    ).send()
+    return schemas.ResultResponse()

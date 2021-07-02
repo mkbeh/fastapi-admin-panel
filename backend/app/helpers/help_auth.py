@@ -64,3 +64,23 @@ async def confirm_account(
         raise errors.BadConfirmationCode
 
     return await auth_data.update(db, confirmed_at=datetime.utcnow())
+
+
+async def change_password(
+    db: AsyncSession,
+    params: schemas.ChangePasswordParams
+) -> AuthorizationData:
+    data = verify_confirmation_code(params.code, 'account_id')
+    if not data:
+        raise errors.BadConfirmationCode
+
+    auth_data = await select(AuthorizationData).filter_by(
+        account_id=data['account_id']
+    ).scalar_one_or_none(db)
+    if not auth_data:
+        raise errors.BadConfirmationCode
+
+    fields = dict(password=params.new_password)
+    if not auth_data.confirmed_at:
+        fields.update(confirmed_at=datetime.utcnow())
+    return await auth_data.update(db, **fields)

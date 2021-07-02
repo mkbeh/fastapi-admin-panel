@@ -7,10 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import errors
 import schemas
 
-from models import Account
+from models import Account, AuthorizationData
 from utils import decorators
 from helpers import help_account
 
+from extra import enums
 from services.mailing import messages
 
 from api.deps import deps_common, deps_account, deps_auth
@@ -139,6 +140,33 @@ async def account_registration(
     await messages.ConfirmAccountMessage(
         account_id=account.id,
         email=schema_in.email,
+    ).send()
+
+    return schemas.ResultResponse()
+
+
+@router.post(
+    '/change_password',
+    response_model=schemas.ResultResponse,
+    responses=with_errors(errors.EmailIsNotFound)
+)
+async def change_account_password(
+    schema_in: schemas.SendEmailChangePassword,
+    db: AsyncSession = Depends(deps_auth.db_session)
+):
+    """Send email to change account password"""
+    auth_data = await select(AuthorizationData).filter_by(
+        login=schema_in.login,
+        registration_type=enums.RegistrationTypes.forms,
+    ).scalar_one_or_none(db)
+
+    if not auth_data:
+        # no email found
+        raise errors.EmailIsNotFound
+
+    await messages.ChangePasswordMessage(
+        account_id=auth_data.account_id,
+        email=schema_in.login
     ).send()
 
     return schemas.ResultResponse()

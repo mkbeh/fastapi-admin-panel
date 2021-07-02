@@ -14,6 +14,15 @@ class ConfirmAccountParams(ConfiguredBaseModel):
     code: str
 
 
+class ChangePasswordParams(ConfiguredBaseModel):
+    code: str
+    new_password: str
+
+
+class SendEmailChangePassword(ConfiguredBaseModel):
+    login: EmailStr
+
+
 class GetTokenBySocialCode(ConfiguredBaseModel):
     code: str
 

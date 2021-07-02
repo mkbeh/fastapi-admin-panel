@@ -18,6 +18,10 @@ class EmailIsExists(AccountError):
     """This email is already in use in the system"""
 
 
+class EmailIsNotFound(AccountError):
+    """Email is not found"""
+
+
 class NotEnoughPrivileges(AccountError):
     """The account doesn't have enough privileges"""
     status_code = 403
