@@ -89,11 +89,8 @@ class Account(Model, TimestampsMixin):
             auth_data = await select(AuthorizationData) \
                 .filter_by(account_id=self.id) \
                 .scalar_one(db)
+            await auth_data.update(db, password=fields.pop('password'))
 
-            await auth_data.update(
-                db=db,
-                password=get_password_hash(fields.pop('password'))
-            )
         return await super().update(db, **fields)
 
 
