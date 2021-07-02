@@ -49,3 +49,9 @@ class Account(AccountInDBBase):
 # Additional properties stored in DB
 class AccountInDB(AccountInDBBase):
     ...
+
+
+# Properties to receive via API on creation open.
+class AccountCreateOpen(ConfiguredBaseModel):
+    email: EmailStr = Field(..., title='Email')
+    password: str = Field(..., min_length=6, max_length=255, title='Пароль')

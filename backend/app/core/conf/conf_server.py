@@ -1,12 +1,12 @@
 import enum
-import secrets
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from pydantic import BaseSettings, EmailStr, validator
 
 
 class ServerSettings(BaseSettings):
     PROJECT_NAME: str = 'FastAPI-admin-panel'
     VERSION: str = '0.1.0'
+    API_V1_STR: str = ''
 
     class EnvMode(enum.Enum):
         dev = 'DEV'
@@ -28,17 +28,13 @@ class ServerSettings(BaseSettings):
     def validate_domain(cls, value: str, values: Dict[str, Any]) -> str:
         return value.rstrip('/')
 
-    API_V1_STR: str = ''
+    API_URL: Optional[str] = None
 
-    AUTH_SECRET_KEY: str = secrets.token_urlsafe(32)
-    # 60 minutes * 24 hours * 8 days = 1 days
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1
-    # 60 minutes * 24 hours * 8 days = 8 days
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    # 60 minutes
-    EMAIL_CODE_EXPIRE_MINUTES: int = 60 * 60
+    @validator('API_URL')
+    def validate_api_url(cls, value: str, values: Dict[str, Any]) -> str:
+        return f'{values["SERVER_DOMAIN"]}/{values["API_V1_STR"].rstrip("/")}'
 
-    SENTRY_DSN: str = None
+    SENTRY_DSN: Optional[str] = None
 
     FIRST_SUPERUSER_LOGIN: EmailStr
     FIRST_SUPERUSER_PASSWORD: str

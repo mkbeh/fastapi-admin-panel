@@ -22,6 +22,10 @@ tenacity = "^7.0.0"
 watchgod = "^0.7"
 python-dotenv = "^0.18.0"
 ujson = "^4.0.2"
+httpx = "^0.18.2"
+aiogoogle = "^1.1.14"
+Jinja2 = "^3.0.1"
+brotlicffi = "^1.0.9"
 
 [tool.poetry.dev-dependencies]
 

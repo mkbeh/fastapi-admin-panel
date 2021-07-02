@@ -1,6 +1,6 @@
 import string
 import secrets
-from typing import Tuple, Optional
+from typing import Optional
 from datetime import timedelta, datetime
 
 import itsdangerous.exc
@@ -75,7 +75,7 @@ def generate_confirmation_code(**params) -> str:
     return signer.dumps(params)
 
 
-def verify_confirmation_code(code: str, *fields: Tuple[str]) -> Optional[dict]:
+def verify_confirmation_code(code: str, *fields: str) -> Optional[dict]:
     try:
         data = signer.loads(code, max_age=settings.EMAIL_CODE_EXPIRE_MINUTES * 60)
         if set(data.keys()) == set(fields):
