@@ -1,3 +1,4 @@
+from typing import Any
 from fastapi import APIRouter, Depends
 
 from sqlalchemy import delete
@@ -27,7 +28,7 @@ router = APIRouter()
 )
 async def get_me(
     account: Account = Depends(deps_account.get_current_active_superuser),
-):
+) -> Any:
     """Get a current user"""
     return account
 
@@ -40,7 +41,7 @@ async def read_account_by_id(
     object_id: int,
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
-):
+) -> Any:
     """Get a specific user by id"""
     return await select(Account).filter_by(id=object_id).scalar_one(db)
 
@@ -54,7 +55,7 @@ async def read_accounts(
     commons: deps_common.CommonQueryParams = Depends(),
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
-):
+) -> Any:
     """Retrieve accounts"""
     accounts = await select(Account) \
         .offset(commons.skip) \
@@ -74,7 +75,7 @@ async def create_account(
     schema_in: schemas.AccountCreate,
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
-):
+) -> Any:
     """Create new account"""
     if await help_account.is_email_exists(db, email=schema_in.email):
         raise errors.AccountAlreadyExist
@@ -96,7 +97,7 @@ async def update_account(
     schema_in: schemas.AccountUpdate,
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
-):
+) -> Any:
     """Update current account"""
     db_obj = await select(Account) \
         .filter_by(id=object_id) \
@@ -113,7 +114,7 @@ async def delete_object_by_id(
     object_id: int,
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
-):
+) -> Any:
     await delete(Account).filter_by(id=object_id).execute(db)
     return schemas.ResultResponse()
 
@@ -126,7 +127,7 @@ async def delete_object_by_id(
 async def account_registration(
     schema_in: schemas.AccountCreateOpen,
     db: AsyncSession = Depends(deps_auth.db_session),
-):
+) -> Any:
     """Account registration through the form using email"""
     if await help_account.is_email_exists(db, email=schema_in.email):
         raise errors.AccountAlreadyExist
@@ -153,7 +154,7 @@ async def account_registration(
 async def change_account_password(
     schema_in: schemas.SendEmailChangePassword,
     db: AsyncSession = Depends(deps_auth.db_session)
-):
+) -> Any:
     """Send email to change account password"""
     auth_data = await select(AuthorizationData).filter_by(
         login=schema_in.login,
