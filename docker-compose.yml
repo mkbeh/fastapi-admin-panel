@@ -1,0 +1,48 @@
+version: "3.3"
+
+services:
+
+  backend_testing:
+    build:
+        context: backend
+        dockerfile: Dockerfile
+    image: backend
+    env_file:
+      - backend/.env
+    depends_on:
+      - postgres_db
+    entrypoint: ['pytest', './tests', '-vv']
+    network_mode: host
+
+  backend:
+    build:
+        context: backend
+        dockerfile: Dockerfile
+    image: backend
+    container_name: backend
+    # restart: always
+    env_file:
+      - backend/.env
+    volumes:
+      - ./data:/app/data
+    network_mode: host
+    depends_on:
+      - postgres_db
+      - redis
+    entrypoint: ['python', 'main.py']
+
+  postgres_db:
+    image: postgres
+    # restart: always
+    env_file: backend/.env
+    # volumes:
+    #  - ./data:/var/lib/postgresql/data
+    network_mode: host
+  
+  redis:
+    image: 'bitnami/redis:latest' # конфигурируется переменными среды
+    # restart: always
+    env_file: backend/.env      
+    # volumes:
+    #  - ./data:/var/lib/postgresql/data
+    network_mode: host

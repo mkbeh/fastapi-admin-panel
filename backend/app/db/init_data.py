@@ -35,6 +35,7 @@ async def create_initial_superuser():
         else:
             account = await models.Account.create(
                 db=db,
+                skip_confirmation=True,
                 role=enums.Roles.admin,
                 email=settings.FIRST_SUPERUSER_LOGIN,
                 password=settings.FIRST_SUPERUSER_PASSWORD,
