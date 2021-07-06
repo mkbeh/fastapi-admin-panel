@@ -13,7 +13,6 @@ faker = Faker()
 on_startup_signals = [
     patch_sqlalchemy_crud,
     create_initial_roles,
-    create_initial_superuser,
 ]
 
 
