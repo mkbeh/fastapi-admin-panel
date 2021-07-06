@@ -26,10 +26,11 @@ router = APIRouter()
     responses=with_errors(errors.BadConfirmationCode),
 )
 async def confirm_account(
-    params: schemas.ConfirmAccountParams = Body(...)
+    params: schemas.ConfirmAccountParams = Body(...),
+    db: AsyncSession = Depends(deps_auth.db_session)
 ):
     """Confirms the account, logs in the user and returns the token"""
-    auth_data = await help_auth.confirm_account(params)
+    auth_data = await help_auth.confirm_account(db, params)
     await messages.SuccessfulRegistrationMessage(email=auth_data.login).send()
     return generate_token(auth_data.account_id)
 

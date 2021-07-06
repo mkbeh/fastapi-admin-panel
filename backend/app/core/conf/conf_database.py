@@ -32,14 +32,14 @@ class DatabaseSettings(BaseSettings):
     ) -> Any:
         if isinstance(val, str):
             return val
-        if field.name == "SQLALCHEMY_DATABASE_URI":
-            pwd = values.get("POSTGRES_PASSWORD")
+
         if field.name == "SQLALCHEMY_DATABASE_URI_HIDDEN_PWD":
-            pwd = "*" * 4
+            values.update(POSTGRES_PASSWORD="*" * 4)
+
         return PostgresDsn.build(
             scheme="postgresql+asyncpg",
             user=values.get("POSTGRES_USER"),
-            password=pwd,
+            password=values.get('POSTGRES_PASSWORD'),
             host=values.get("POSTGRES_SERVER"),
             path=f"/{values.get('POSTGRES_DB') or ''}",
             port=values.get("POSTGRES_PORT"),

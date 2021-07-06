@@ -9,6 +9,9 @@ services:
     image: backend
     env_file:
       - backend/.env
+    environment:
+      - ENV=DEV
+      - POSTGRES_DB=tests
     depends_on:
       - postgres_db
     entrypoint: ['pytest', './tests', '-vv']
@@ -35,8 +38,9 @@ services:
     image: postgres
     # restart: always
     env_file: backend/.env
-    # volumes:
-    #  - ./data:/var/lib/postgresql/data
+    volumes:
+      - ./scripts/multiple_databases.sh:/docker-entrypoint-initdb.d/multiple_databases.sh
+      # - ./data:/var/lib/postgresql/data
     network_mode: host
   
   redis:
