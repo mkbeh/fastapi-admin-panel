@@ -57,7 +57,7 @@ class CRUDMixin(InspectionMixin):
         return await self.save(db)
 
     @classmethod
-    def exists(cls, **fields):
+    async def exists(cls, db: AsyncSession, **fields):
         """
         Syntactic sugar for exists.
 
@@ -70,10 +70,9 @@ class CRUDMixin(InspectionMixin):
         Example:
 
             is_exist = await Account \
-                .exists(email="jondoe@gmail.com") \
-                .scalar(db)
+                .exists(db, email="jondoe@gmail.com")
 
         """
-        return exists(
+        return await exists(
             select(cls).filter_by(**fields)
-        ).select()
+        ).select().scalar(db)

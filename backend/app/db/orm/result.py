@@ -7,7 +7,7 @@ from sqlalchemy.engine.row import Row
 from db.orm.utils import async_call
 
 
-def exists(self):
+async def exists(self, db: AsyncSession):
     """
     Syntactic sugar for exists.
 
@@ -21,11 +21,10 @@ def exists(self):
 
         is_exist = await select(Role) \
             .filter_by(name=role.name) \
-            .exists() \
-            .scalar(db)
+            .exists(db)
 
     """
-    return sa.exists(self).select()
+    return await sa.exists(self).select().scalar(db)
 
 
 async def execute(

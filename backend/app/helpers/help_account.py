@@ -3,6 +3,6 @@ from models import Account, AuthorizationData
 
 
 async def is_email_exists(db: AsyncSession, email: str):
-    is_email = await Account.exists(email=email).scalar(db)
-    is_login = await AuthorizationData.exists(login=email).scalar(db)
+    is_email = await Account.exists(db, email=email)
+    is_login = await AuthorizationData.exists(db, login=email)
     return any((is_email, is_login))
