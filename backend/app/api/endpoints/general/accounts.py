@@ -50,7 +50,10 @@ async def read_account_by_id(
     "/",
     response_model=schemas.ResultSchema
 )
-@decorators.add_count(Account)
+@decorators.add_count(
+    response_model=Account,
+    response_schema=schemas.Account
+)
 async def read_accounts(
     commons: deps_common.CommonQueryParams = Depends(),
     db: AsyncSession = Depends(deps_auth.db_session),
