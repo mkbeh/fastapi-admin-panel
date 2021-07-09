@@ -26,3 +26,6 @@ COPY app /app/
 # Copy alembic
 COPY alembic.ini /app/
 COPY alembic /app/alembic
+
+# Copy scripts
+COPY scripts /app/scripts

@@ -14,7 +14,6 @@ services:
       - POSTGRES_DB=tests
     depends_on:
       - postgres_db
-    # entrypoint: ['pytest', './tests', '-vv']
     entrypoint: ["/bin/bash", "-c", "alembic upgrade head; pytest ./tests -vv"]
     network_mode: host
 
@@ -22,6 +21,8 @@ services:
     build:
         context: backend
         dockerfile: Dockerfile
+        args:
+          INSTALL_DEV: ${INSTALL_DEV-true}
     image: backend
     container_name: backend
     # restart: always
@@ -32,8 +33,8 @@ services:
     depends_on:
       - postgres_db
       - redis
-    # entrypoint: ['python', 'main.py']
     entrypoint: ["/bin/bash", "-c", "alembic upgrade head; python main.py"]
+    # entrypoint: ["/bin/bash", "-c", "bash scripts/prestart.sh"]
     network_mode: host
 
   postgres_db:
