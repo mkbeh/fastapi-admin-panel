@@ -14,7 +14,8 @@ services:
       - POSTGRES_DB=tests
     depends_on:
       - postgres_db
-    entrypoint: ['pytest', './tests', '-vv']
+    # entrypoint: ['pytest', './tests', '-vv']
+    entrypoint: ["/bin/bash", "-c", "alembic upgrade head; pytest ./tests -vv"]
     network_mode: host
 
   backend:
@@ -28,11 +29,12 @@ services:
       - backend/.env
     volumes:
       - ./data:/app/data
-    network_mode: host
     depends_on:
       - postgres_db
       - redis
-    entrypoint: ['python', 'main.py']
+    # entrypoint: ['python', 'main.py']
+    entrypoint: ["/bin/bash", "-c", "alembic upgrade head; python main.py"]
+    network_mode: host
 
   postgres_db:
     image: postgres

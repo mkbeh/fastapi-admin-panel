@@ -40,4 +40,7 @@ async def db_init() -> None:
         logger.info(
             "Connection to %s", settings.SQLALCHEMY_DATABASE_URI_HIDDEN_PWD
         )
-        await conn.run_sync(Model.metadata.create_all)
+        # Tables should be created with Alembic migrations
+        # But if you don't want to use migrations, create
+        # the tables un-commenting the next line
+        # await conn.run_sync(Model.metadata.create_all)
