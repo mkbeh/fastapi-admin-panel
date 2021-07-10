@@ -1,3 +1,4 @@
+from typing import Any
 from fastapi import (
     APIRouter, Depends, Body, status,
     Request,
@@ -35,7 +36,7 @@ async def access_token(
         },
     ),
     db: AsyncSession = Depends(deps_auth.db_session)
-):
+) -> Any:
     """
     OAuth2 compatible token login, get pair of access
     and refresh tokens for future requests.
@@ -51,7 +52,7 @@ async def access_token(
 )
 async def refresh_token(
     account: models.Account = Depends(deps_auth.verify_refresh_token),
-):
+) -> Any:
     """Refresh access and refresh tokens pair via refresh token."""
     return security.generate_token(account.id)
 
@@ -62,7 +63,7 @@ async def refresh_token(
 )
 async def user_is_auth(
     _: models.Account = Depends(deps_account.get_current_active_user)
-):
+) -> Any:
     """Token validation of active user."""
     return schemas.ResultResponse()
 
@@ -77,7 +78,7 @@ async def user_is_auth(
 async def get_social_login_url(
     request: Request,
     social_type: enums.SocialTypes
-):
+) -> Any:
     """Get a link for authorization in social networks."""
     try:
         await deps_account.get_current_active_user(request)
@@ -105,7 +106,7 @@ async def social_login_send_confirmation_email(
         description='Code and email are required'
     ),
     db: AsyncSession = Depends(deps_auth.db_session),
-):
+) -> Any:
     """Email confirmation for social login, if the email was not provided."""
     await socials.send_confirmation_email(db, form)
     return schemas.ResultResponse()

@@ -4,7 +4,7 @@ import httpx
 from pydantic import ValidationError
 from aiogoogle import AiogoogleError
 
-from sqlalchemy.future import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors

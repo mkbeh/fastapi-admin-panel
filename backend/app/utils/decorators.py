@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, TypeVar
 from functools import wraps
 
 from sqlalchemy import func as sa_func
-from sqlalchemy.future import select
+from sqlalchemy import select
 
 from schemas import ResultSchema, ResultMeta
 from schemas.base import BaseModel
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from db.model import Model
 
 
-ModelSchema = TypeVar('ModelSchema', bound=BaseModel)
+ModelSchema = TypeVar("ModelSchema", bound=BaseModel)
 
 
 def add_count(
@@ -24,6 +24,7 @@ def add_count(
     Gets a list of model objects and adds a count of all objects in this
     model to the resulting schema.
     """
+
     def decorator(func):
         @wraps(func)
         async def create_new_schema(*args, **kwargs):
@@ -31,7 +32,9 @@ def add_count(
             total_rows = await select(sa_func.count(response_model.id)).scalar(db)
             return ResultSchema(
                 result=[response_schema.from_orm(x) for x in instances],
-                meta=ResultMeta(count=total_rows)
+                meta=ResultMeta(count=total_rows),
             )
+
         return create_new_schema
+
     return decorator

@@ -1,17 +1,20 @@
 import inspect
-from typing import Mapping, Optional
+from typing import Mapping, Optional, Union
 
 from sqlalchemy import util
+from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.model import Model
 
 
 async def async_call(
     self,
     session: AsyncSession,
-    method_name: str = '',
+    method_name: str = "",
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = util.EMPTY_DICT,
-):
+) -> Union[Model, Row, list[Row]]:
     result = await session.execute(self, parameters, execution_options)
     result = result.unique()
 

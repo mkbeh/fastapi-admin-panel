@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import not_
 from sqlalchemy.orm import joinedload
-from sqlalchemy.future import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors

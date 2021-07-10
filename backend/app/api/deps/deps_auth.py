@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import Depends, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from sqlalchemy.future import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors

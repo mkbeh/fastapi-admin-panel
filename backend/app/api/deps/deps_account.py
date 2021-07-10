@@ -1,5 +1,5 @@
 from fastapi import Depends
-from sqlalchemy.future import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors

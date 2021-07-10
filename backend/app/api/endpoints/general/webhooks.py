@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Any
 from fastapi import APIRouter, status, Depends, Body
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,14 +21,15 @@ from api.responses import with_errors
 router = APIRouter()
 
 
-@router.post('/confirm/account',
+@router.post(
+    '/confirm/account',
     response_model=schemas.AuthToken,
     responses=with_errors(errors.BadConfirmationCode),
 )
 async def confirm_account(
     params: schemas.ConfirmAccountParams = Body(...),
     db: AsyncSession = Depends(deps_auth.db_session)
-):
+) -> Any:
     """Confirms the account, logs in the user and returns the token"""
     auth_data = await help_auth.confirm_account(db, params)
     await messages.SuccessfulRegistrationMessage(email=auth_data.login).send()
@@ -43,7 +44,7 @@ async def confirm_account(
 async def change_password(
     params: schemas.ChangePasswordParams,
     db: AsyncSession = Depends(deps_auth.db_session)
-):
+) -> Any:
     """Account password recovery"""
     auth_data = await help_auth.change_password(db, params)
     await messages.PasswordWasChangedMessage(
@@ -66,7 +67,7 @@ async def social_login(
     error: Optional[str] = None,
     error_description: Optional[str] = None,
     db: AsyncSession = Depends(deps_auth.db_session)
-):
+) -> Any:
     """Autorization via OAUTH service"""
     if error and error_description:
         return RedirectResponse(

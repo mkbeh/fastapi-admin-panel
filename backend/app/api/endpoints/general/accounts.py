@@ -1,8 +1,7 @@
 from typing import Any
 from fastapi import APIRouter, Depends
 
-from sqlalchemy import delete
-from sqlalchemy.future import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors
