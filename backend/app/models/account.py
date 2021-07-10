@@ -1,3 +1,4 @@
+from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy import (
@@ -62,7 +63,7 @@ class Account(Model, TimestampsMixin):
         external_id=None,
         skip_confirmation: bool = False,
         **fields
-    ):
+    ) -> Account:
         role = await select(Role).filter_by(name=role).scalar_one(db)
         account = await super().create(db=db, roles=[role], **fields)
         auth_data = await AuthorizationData.create(
@@ -84,7 +85,7 @@ class Account(Model, TimestampsMixin):
 
         return account
 
-    async def update(self, db, **fields):
+    async def update(self, db, **fields) -> Account:
         if fields.get('password'):
             auth_data = await select(AuthorizationData) \
                 .filter_by(account_id=self.id) \
@@ -125,7 +126,7 @@ class AuthorizationData(Model):
                            passive_deletes=True)
 
     @hybrid_property
-    def is_confirmed(self):
+    def is_confirmed(self) -> bool:
         return bool(self.confirmed_at)
 
     @hybrid_property
