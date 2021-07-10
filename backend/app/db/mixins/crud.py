@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Tuple, Any
 
 from sqlalchemy import exists
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .inspection import InspectionMixin
@@ -56,6 +57,48 @@ class CRUDMixin(InspectionMixin):
     ) -> Model:
         self.fill(**fields)
         return await self.save(db)
+
+    @classmethod
+    async def get_or_create(
+        cls,
+        db: Optional[AsyncSession] = None,
+        defaults: Optional[dict] = None,
+        **kwargs: Any,
+    ) -> Tuple[Model, bool]:
+        """
+        Fetches the object if exists (filtering on the provided parameters),
+        else creates an instance with any unspecified parameters as default values.
+        """
+        if defaults is None:
+            defaults = {}
+        try:
+            instance = await cls.where(**kwargs).one(db)
+            return instance, False
+        except NoResultFound:
+            kwargs |= defaults or {}
+            return await cls.create(db, **kwargs), True
+
+    @classmethod
+    async def update_or_create(
+        cls,
+        db: Optional[AsyncSession] = None,
+        defaults: Optional[dict] = None,
+        **kwargs: Any,
+    ) -> Tuple[Model, bool]:
+        """
+        A convenience method for updating an object with the given
+        kwargs, creating a new one if necessary.
+        """
+        if defaults is None:
+            defaults = {}
+        try:
+            instance = await cls.where(**kwargs).one(db)
+        except NoResultFound:
+            kwargs |= defaults or {}
+            return await cls.create(db, **kwargs), True
+        else:
+            await instance.update(**defaults)
+            return instance, False
 
     @classmethod
     async def exists(

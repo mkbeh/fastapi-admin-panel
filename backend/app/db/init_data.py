@@ -10,9 +10,7 @@ from .sessions import in_transaction
 async def create_initial_roles():
     async with in_transaction() as db:
         for role in enums.Roles:
-            is_role = await models.Role.exists(db, name=role)
-            if not is_role:
-                await models.Role.create(db, guid=role.name, name=role.value)
+            await models.Role.get_or_create(db, guid=role.name, name=role.value)
 
 
 async def create_initial_superuser():
