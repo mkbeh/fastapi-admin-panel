@@ -3,7 +3,6 @@ from typing import Optional
 from fastapi import Depends, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors
@@ -45,6 +44,6 @@ async def verify_refresh_token(
         token=params.refresh_token,
         purpose=enums.TokenPurpose.refresh
     )
-    return await select(Account) \
-        .filter_by(id=token_payload.sub) \
+    return await Account\
+        .where(id=token_payload.sub)\
         .scalar_one(db)

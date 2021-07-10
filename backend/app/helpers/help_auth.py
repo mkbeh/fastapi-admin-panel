@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from sqlalchemy import not_
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors
@@ -19,11 +17,12 @@ async def authenticate_user(
     params: schemas.LoginParams
 ) -> int:
     auth_data = await AuthorizationData\
+        .where(
+            login=params.login,
+            registration_type__not=enums.RegistrationTypes.social
+        )\
         .with_joined('account')\
-        .filter(
-            AuthorizationData.login == params.login,
-            not_(AuthorizationData.registration_type == enums.RegistrationTypes.social)
-        ).scalar_one_or_none(db)
+        .scalar_one_or_none(db)
 
     if auth_data is None:
         raise errors.LoginError
@@ -52,9 +51,10 @@ async def confirm_account(
     if not data:
         raise errors.BadConfirmationCode
 
-    auth_data = await select(AuthorizationData)\
-        .filter_by(account_id=data['account_id'])\
+    auth_data = await AuthorizationData\
+        .where(account_id=data['account_id'])\
         .scalar_one_or_none(db)
+
     if not auth_data:
         raise errors.BadConfirmationCode
     if auth_data.confirmed_at:
@@ -71,9 +71,10 @@ async def change_password(
     if not data:
         raise errors.BadConfirmationCode
 
-    auth_data = await select(AuthorizationData).filter_by(
+    auth_data = await AuthorizationData.where(
         account_id=data['account_id']
     ).scalar_one_or_none(db)
+
     if not auth_data:
         raise errors.BadConfirmationCode
 

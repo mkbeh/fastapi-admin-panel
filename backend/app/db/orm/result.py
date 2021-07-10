@@ -1,13 +1,48 @@
 from typing import Optional, Mapping, List, Any
 
 import sqlalchemy as sa
+from sqlalchemy.sql import Select
+from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
+from extra.types import Paths
 from db.orm.utils import async_call
 
 
-async def exists(self, db: AsyncSession):
+def with_joined(self, *paths: Paths) -> Select:
+    """
+    Eagerload for simple cases where we need to just
+        joined load some relations
+    In strings syntax, you can split relations with dot
+        due to this SQLAlchemy feature: https://goo.gl/yM2DLX
+
+    Example 1:
+        await Comment.with_joined('user', 'post', 'post.comments').first(db)
+    Example 2:
+        await Comment.with_joined(Comment.user, Comment.post).first(db)
+    """
+    options = [joinedload(path) for path in paths]
+    return self.options(*options)
+
+
+def with_subquery(self, *paths: Paths) -> Select:
+    """
+    Eagerload for simple cases where we need to just
+        joined load some relations
+    In strings syntax, you can split relations with dot
+        (it's SQLAlchemy feature)
+
+    Example 1:
+        await User.with_subquery('posts', 'posts.comments').scalars_all(db)
+    Example 2:
+        await User.with_subquery(User.posts, User.comments).scalars_all(db)
+    """
+    options = [subqueryload(path) for path in paths]
+    return self.options(*options)
+
+
+async def exists(self, db: AsyncSession) -> bool:
     """
     Syntactic sugar for exists.
 

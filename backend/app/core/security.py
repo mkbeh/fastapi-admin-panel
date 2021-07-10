@@ -15,7 +15,7 @@ from extra import enums
 from core.settings import settings
 
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 signer = URLSafeTimedSerializer(settings.AUTH_SECRET_KEY)
 
@@ -23,7 +23,7 @@ alphabet = string.ascii_letters + string.digits
 
 
 def generate_password(length: int = 20) -> str:
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 def get_password_hash(password: str) -> str:
@@ -62,7 +62,7 @@ def decode_token(token: str, purpose: enums.TokenPurpose) -> schemas.AuthTokenPa
         payload = jwt.decode(
             token, settings.AUTH_SECRET_KEY, algorithms=[jwt.ALGORITHMS.HS256]
         )
-        if payload['purpose'] != purpose:
+        if payload["purpose"] != purpose:
             raise errors.BadToken
         return schemas.AuthTokenPayload(**payload)
     except jwt.ExpiredSignatureError:

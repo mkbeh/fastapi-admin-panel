@@ -1,23 +1,21 @@
-from typing import Union
-
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql import Select
 
-Paths = Union[list[str], list[InstrumentedAttribute]]
+from extra.types import Paths
 
 
 JOINED = "joined"
 SUBQUERY = "subquery"
 
 
-def eager_expr(schema: dict):
+def eager_expr(schema: dict) -> list:
     flat_schema = _flatten_schema(schema)
     return _eager_expr_from_flat_schema(flat_schema)
 
 
-def _flatten_schema(schema: dict):
+def _flatten_schema(schema: dict) -> dict:
     def _flatten(schema: dict, parent_path, result):
         for path, value in schema.items():
             # for supporting schemas like Product.user: {...},
@@ -43,7 +41,7 @@ def _flatten_schema(schema: dict):
     return result
 
 
-def _eager_expr_from_flat_schema(flat_schema: dict):
+def _eager_expr_from_flat_schema(flat_schema: dict) -> list:
     result = []
     for path, join_method in flat_schema.items():
         if join_method == JOINED:
@@ -59,7 +57,7 @@ class EagerLoadMixin:
     __abstract__ = True
 
     @classmethod
-    def with_(cls, schema: dict):
+    def with_(cls, schema: dict) -> Select:
         """
         Query class and eager load schema at once.
 

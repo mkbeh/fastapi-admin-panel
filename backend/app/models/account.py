@@ -73,7 +73,7 @@ class Account(Model, TimestampsMixin):
         skip_confirmation: bool = False,
         **fields
     ) -> Account:
-        role = await select(Role).filter_by(name=role).scalar_one(db)
+        role = await Role.where(name=role).scalar_one(db)
         account = await super().create(db=db, roles=[role], **fields)
         auth_data = await AuthorizationData.create(
             db=db,
@@ -96,8 +96,8 @@ class Account(Model, TimestampsMixin):
 
     async def update(self, db, **fields) -> Account:
         if fields.get("password"):
-            auth_data = await select(AuthorizationData)\
-                .filter_by(account_id=self.id)\
+            auth_data = await AuthorizationData\
+                .where(account_id=self.id)\
                 .scalar_one(db)
             await auth_data.update(db, password=fields.pop("password"))
 

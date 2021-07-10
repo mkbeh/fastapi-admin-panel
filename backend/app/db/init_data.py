@@ -1,8 +1,9 @@
 from datetime import datetime
 
 import models
-from extra import enums
 from core.settings import settings
+from extra import enums
+
 from .sessions import in_transaction
 
 
@@ -17,11 +18,12 @@ async def create_initial_roles():
 async def create_initial_superuser():
     async with in_transaction() as db:
         auth_data = await models.AuthorizationData\
-            .with_joined('account')\
-            .filter_by(
+            .where(
                 login=settings.FIRST_SUPERUSER_LOGIN,
                 registration_type=enums.RegistrationTypes.forms,
-            ).scalar_one_or_none(db)
+            )\
+            .with_joined('account')\
+            .scalar_one_or_none(db)
 
         if auth_data:
             if not auth_data.is_confirmed:

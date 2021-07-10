@@ -42,7 +42,7 @@ async def read_account_by_id(
     _: Account = Depends(deps_account.get_current_active_superuser),
 ) -> Any:
     """Get a specific user by id"""
-    return await select(Account).filter_by(id=object_id).scalar_one(db)
+    return await Account.where(id=object_id).scalar_one(db)
 
 
 @router.get(
@@ -100,11 +100,8 @@ async def update_account(
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
 ) -> Any:
-    """Update current account"""
-    db_obj = await select(Account) \
-        .filter_by(id=object_id) \
-        .scalar_one(db)
-
+    """Update specific user by id"""
+    db_obj = await Account.where(id=object_id).scalar_one(db)
     return await db_obj.update(db, **schema_in.dict(exclude_unset=True))
 
 
@@ -117,6 +114,7 @@ async def delete_object_by_id(
     db: AsyncSession = Depends(deps_auth.db_session),
     _: Account = Depends(deps_account.get_current_active_superuser),
 ) -> Any:
+    """Delete specific user by id"""
     await delete(Account).filter_by(id=object_id).execute(db)
     return schemas.ResultResponse()
 
@@ -130,7 +128,7 @@ async def account_registration(
     schema_in: schemas.AccountCreateOpen,
     db: AsyncSession = Depends(deps_auth.db_session),
 ) -> Any:
-    """Account registration through the form using email"""
+    """User registration through the form using email"""
     if await help_account.is_email_exists(db, email=schema_in.email):
         raise errors.AccountAlreadyExist
 
@@ -157,8 +155,8 @@ async def change_account_password(
     schema_in: schemas.SendEmailChangePassword,
     db: AsyncSession = Depends(deps_auth.db_session)
 ) -> Any:
-    """Send email to change account password"""
-    auth_data = await select(AuthorizationData).filter_by(
+    """Send email to change user password"""
+    auth_data = AuthorizationData.where(
         login=schema_in.login,
         registration_type=enums.RegistrationTypes.forms,
     ).scalar_one_or_none(db)

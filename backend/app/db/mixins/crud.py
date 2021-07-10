@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 from typing import TYPE_CHECKING
 
-from sqlalchemy import select, exists
+from sqlalchemy import exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .insepction import InspectionMixin
+from .inspection import InspectionMixin
 from .utils import classproperty
 
 if TYPE_CHECKING:
@@ -15,10 +16,10 @@ class CRUDMixin(InspectionMixin):
     __abstract__ = True
 
     @classproperty
-    def settable_attributes(cls):
+    def settable_attributes(cls) -> list[str]:
         return cls.columns + cls.hybrid_properties + cls.settable_relations
 
-    def fill(self, **fields):
+    def fill(self, **fields: str) -> Model:
         for name in fields.keys():
             if name in self.settable_attributes:
                 setattr(self, name, fields[name])
@@ -44,20 +45,24 @@ class CRUDMixin(InspectionMixin):
     async def create(
         cls,
         db: AsyncSession,
-        **fields
+        **fields: str
     ) -> Model:
         return await cls(**fields).save(db)
 
     async def update(
         self,
         db: AsyncSession,
-        **fields
-    ):
+        **fields: str
+    ) -> Model:
         self.fill(**fields)
         return await self.save(db)
 
     @classmethod
-    async def exists(cls, db: AsyncSession, **fields):
+    async def exists(
+        cls,
+        db: AsyncSession,
+        **fields: str
+    ) -> bool:
         """
         Syntactic sugar for exists.
 
@@ -74,5 +79,5 @@ class CRUDMixin(InspectionMixin):
 
         """
         return await exists(
-            select(cls).filter_by(**fields)
+            cls.where(**fields)
         ).select().scalar(db)

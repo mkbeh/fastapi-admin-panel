@@ -1,16 +1,9 @@
 import os
-from .conf import (
-    ServerSettings,
-    DatabaseSettings,
-    AuthSettings,
-    MailingSettings,
-)
+
+from .conf import AuthSettings, DatabaseSettings, MailingSettings, ServerSettings
 
 
-class Settings(
-    ServerSettings, DatabaseSettings,
-    AuthSettings, MailingSettings,
-):
+class Settings(ServerSettings, DatabaseSettings, AuthSettings, MailingSettings):
     ...
 
     class Config:

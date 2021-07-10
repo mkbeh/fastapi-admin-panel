@@ -4,7 +4,6 @@ import httpx
 from pydantic import ValidationError
 from aiogoogle import AiogoogleError
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import errors
@@ -230,7 +229,7 @@ async def registration(
 ):
     social_type, external_id = schema.get_type_and_user_id()
 
-    social_integration = await select(SocialIntegration).filter_by(
+    social_integration = await SocialIntegration.where(
         social_type=social_type,
         external_id=external_id,
     ).scalar_one_or_none(db)
@@ -240,7 +239,7 @@ async def registration(
         auth_data = await social_integration.auth_data
         account_id = auth_data.account_id
     else:
-        auth_data = await select(AuthorizationData).filter_by(
+        auth_data = await AuthorizationData.where(
             login=schema.email,
             registration_type=enums.RegistrationTypes.social,
         ).scalar_one_or_none(db)
@@ -254,7 +253,7 @@ async def registration(
             )
             account_id = auth_data.account_id
         else:
-            account = await select(Account).filter_by(
+            account = await Account.where(
                 email=schema.email
             ).scalar_one_or_none(db)
             if account:
