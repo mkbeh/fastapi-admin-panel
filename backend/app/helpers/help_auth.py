@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from sqlalchemy import not_
-from sqlalchemy.orm import joinedload
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,14 +18,12 @@ async def authenticate_user(
     db: AsyncSession,
     params: schemas.LoginParams
 ) -> int:
-    auth_data = await select(AuthorizationData) \
+    auth_data = await AuthorizationData\
+        .with_joined('account')\
         .filter(
             AuthorizationData.login == params.login,
             not_(AuthorizationData.registration_type == enums.RegistrationTypes.social)
-        ) \
-        .join(AuthorizationData.account) \
-        .options(joinedload(AuthorizationData.account)) \
-        .scalar_one_or_none(db)
+        ).scalar_one_or_none(db)
 
     if auth_data is None:
         raise errors.LoginError

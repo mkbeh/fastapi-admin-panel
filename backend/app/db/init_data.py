@@ -1,8 +1,5 @@
 from datetime import datetime
 
-from sqlalchemy import select
-from sqlalchemy.orm import joinedload
-
 import models
 from extra import enums
 from core.settings import settings
@@ -19,14 +16,12 @@ async def create_initial_roles():
 
 async def create_initial_superuser():
     async with in_transaction() as db:
-        auth_data = await select(models.AuthorizationData) \
+        auth_data = await models.AuthorizationData\
+            .with_joined('account')\
             .filter_by(
                 login=settings.FIRST_SUPERUSER_LOGIN,
                 registration_type=enums.RegistrationTypes.forms,
-            ) \
-            .join(models.AuthorizationData.account) \
-            .options(joinedload(models.AuthorizationData.account)) \
-            .scalar_one_or_none(db)
+            ).scalar_one_or_none(db)
 
         if auth_data:
             if not auth_data.is_confirmed:
