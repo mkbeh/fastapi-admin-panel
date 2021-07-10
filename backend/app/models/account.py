@@ -10,7 +10,6 @@ from sqlalchemy import (
     ForeignKey,
     Table,
 )
-from sqlalchemy import select
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 

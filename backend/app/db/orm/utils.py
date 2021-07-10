@@ -1,5 +1,5 @@
 import inspect
-from typing import Mapping, Optional, Union
+from typing import Mapping, Optional, Union, no_type_check
 
 from sqlalchemy import util
 from sqlalchemy.engine.row import Row
@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.model import Model
 
 
+@no_type_check
 async def async_call(
     self,
     session: AsyncSession,

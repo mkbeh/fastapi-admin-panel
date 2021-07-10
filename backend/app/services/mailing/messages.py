@@ -10,7 +10,8 @@ from .sender import BaseMessage
 # same purpose AND MANY common logic.
 # If you have to do some same validation without any complexity, do it in
 # separate classes without inheritance, please.
-# The class is much more readable and error-resilient if it has smaller inheritance chain.
+# The class is much more readable and error-resilient if it has smaller
+# inheritance chain.
 # This can be extended to other things, like pydantic models, email messages, etc.
 
 
@@ -65,6 +66,7 @@ class ChangeBankCardMessage(BaseMessage):
         account_id: int
 
     def get_context(self) -> dict:
+        account_id = self.schema.account_id
         return {
-            'url': f'{settings.API_URL}/payments/change_bank_card/{self.schema.account_id}'
+            'url': f'{settings.API_URL}/payments/change_bank_card/{account_id}'
         }

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Optional
 
 import httpx
 from pydantic import ValidationError
@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import errors
 import schemas
 
-from extra import enums
+from extra import enums, types
 from models import Account, SocialIntegration, AuthorizationData
 from sessions import sessions
 
@@ -22,7 +22,7 @@ from core.security import generate_token
 from services.mailing import messages
 
 
-def get_url_to_redirect(social_type: enums.SocialTypes):
+def get_url_to_redirect(social_type: enums.SocialTypes) -> Optional[str]:
     """Getting a link for OAuth authorization"""
     # first step in authorization - url to redirect user browser
     if social_type == enums.SocialTypes.vk:
@@ -47,7 +47,7 @@ def get_url_to_redirect(social_type: enums.SocialTypes):
     return url
 
 
-async def get_facebook_user(code: str):
+async def get_facebook_user(code: str) -> schemas.RegistrationFromSocialFacebook:
     """Getting user id and email from facebook API"""
     session = sessions.facebook_session
     params = dict(
@@ -95,7 +95,7 @@ async def get_facebook_user(code: str):
     return schema
 
 
-async def get_vk_user(code: str):
+async def get_vk_user(code: str) -> schemas.RegistrationFromSocialVK:
     """Getting user id and email from VK API"""
     session = sessions.vk_session
     params = dict(
@@ -107,7 +107,7 @@ async def get_vk_user(code: str):
     text = None
     try:
         # getting token and email at once
-        async with session.get('https://oauth.vk.com/access_token', params=params) as resp:
+        async with session.get('https://oauth.vk.com/access_token', params=params) as resp:     # noqa
             if resp.status != 200:
                 raise errors.SocialLoginFailed
             text = await resp.text()
@@ -129,7 +129,10 @@ async def get_vk_user(code: str):
     return schema
 
 
-async def get_google_user(code: str, state=None):
+async def get_google_user(
+    code: str,
+    state: str = None
+) -> schemas.RegistrationFromSocialGoogle:
     """Getting user id and email from Google API"""
     session = sessions.google_session
     try:
@@ -149,7 +152,10 @@ async def get_google_user(code: str, state=None):
 __social_user_cache = {}
 
 
-async def get_user_schema(social_type: enums.SocialTypes, code: str):
+async def get_user_schema(
+    social_type: enums.SocialTypes,
+    code: str
+) -> types.SocialRegistrationSchema:
     """Retrieving User Data by OAuth Code"""
 
     if code not in __social_user_cache:
@@ -172,7 +178,7 @@ async def get_user_schema(social_type: enums.SocialTypes, code: str):
     return __social_user_cache[code]
 
 
-def get_token(code: str):
+def get_token(code: str) -> schemas.AuthToken:
     """Issuing an authorization token for an account bound by OAuth authorization"""
     if user_schema := __social_user_cache.get(code):
         # user was redirected from social login right now
@@ -189,7 +195,7 @@ def get_token(code: str):
 async def send_confirmation_email(
     db: AsyncSession,
     form: schemas.RequestConfirmationEmailBySocialCode
-):
+) -> None:
     if schema := __social_user_cache.get(form.code):
         # user was redirected from social login right now
         if await is_email_exists(db, form.email):
@@ -220,13 +226,9 @@ async def send_confirmation_email(
 
 async def registration(
     db: AsyncSession,
-    schema: Union[
-        schemas.RegistrationFromSocialVK,
-        schemas.RegistrationFromSocialFacebook,
-        schemas.RegistrationFromSocialGoogle,
-    ],
+    schema: types.SocialRegistrationSchema,
     code: str,
-):
+) -> None:
     social_type, external_id = schema.get_type_and_user_id()
 
     social_integration = await SocialIntegration.where(

@@ -56,8 +56,12 @@ async def change_password(
 @router.get(
     '/social/{social_type}',
     responses={
-        status.HTTP_307_TEMPORARY_REDIRECT: {'description': 'Redirect to frontend connect page'},
-        status.HTTP_400_BAD_REQUEST: {'description': 'Bad request params'}
+        status.HTTP_307_TEMPORARY_REDIRECT: {
+            'description': 'Redirect to frontend connect page'
+        },
+        status.HTTP_400_BAD_REQUEST: {
+            'description': 'Bad request params'
+        }
     },
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
 )

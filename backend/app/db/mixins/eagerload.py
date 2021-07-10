@@ -16,7 +16,7 @@ def eager_expr(schema: dict) -> list:
 
 
 def _flatten_schema(schema: dict) -> dict:
-    def _flatten(schema: dict, parent_path, result):
+    def _flatten(schema: dict, parent_path: str, result: dict) -> None:
         for path, value in schema.items():
             # for supporting schemas like Product.user: {...},
             # we transform, say, Product.user to 'user' string

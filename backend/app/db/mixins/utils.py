@@ -1,5 +1,4 @@
 
-
 class classproperty(object):
     """
     @property for @classmethod

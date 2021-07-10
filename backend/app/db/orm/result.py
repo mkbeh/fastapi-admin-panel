@@ -1,4 +1,7 @@
-from typing import Optional, Mapping, List, Any
+# type: ignore
+
+from __future__ import annotations
+from typing import Optional, Mapping, List, Any, TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.sql import Select
@@ -8,6 +11,9 @@ from sqlalchemy.engine.row import Row
 
 from extra.types import Paths
 from db.orm.utils import async_call
+
+if TYPE_CHECKING:
+    from db.model import Model
 
 
 def with_joined(self, *paths: Paths) -> Select:
@@ -67,7 +73,7 @@ async def execute(
     session: AsyncSession,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-):
+) -> Any:
     return await session.execute(self, parameters, execution_options)
 
 
@@ -181,7 +187,7 @@ async def one_or_none(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-):
+) -> Optional[Row]:
     """Return at most one result or raise an exception.
 
     Returns ``None`` if the result has no rows.
@@ -209,7 +215,7 @@ async def scalar_one(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Any:
+) -> Model:
     """Return exactly one scalar result or raise an exception.
 
     This is equivalent to calling :meth:`_asyncio.AsyncResult.scalars` and
@@ -230,7 +236,7 @@ async def scalar_one_or_none(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-):
+) -> Optional[Model]:
     """Return exactly one or no scalar result.
 
     This is equivalent to calling :meth:`_asyncio.AsyncResult.scalars` and
@@ -288,7 +294,7 @@ async def scalar(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-):
+) -> Any:
     """Fetch the first column of the first row, and close the result set.
 
     Returns None if there are no rows to fetch.
@@ -310,7 +316,7 @@ async def scalars(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-):
+) -> Any:
     return await async_call(self, session, parameters, execution_options)
 
 
@@ -319,7 +325,7 @@ async def scalars_all(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-):
+) -> List[Model]:
     return (
         await async_call(
             self, session, "scalars", parameters, execution_options

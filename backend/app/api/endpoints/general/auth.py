@@ -71,7 +71,9 @@ async def user_is_auth(
 @router.get(
     '/social/{social_type}/url',
     responses={
-        status.HTTP_307_TEMPORARY_REDIRECT: {'description': 'Redirect to social login or root'},
+        status.HTTP_307_TEMPORARY_REDIRECT: {
+            'description': 'Redirect to social login or root'
+        },
     },
     status_code=status.HTTP_307_TEMPORARY_REDIRECT,
 )
