@@ -93,6 +93,6 @@ Other environment variables could be found in `env.template` of `backend` direct
 
 * Create `.env` file in `backend` directory with settings from `.env.template`.
 
-* Run command `docker-compose up --build -d`
+* Run command `docker-compose up --build -d`.
 
-* Check URL `http://127.0.0.1:8000`
+* Check URL `http://127.0.0.1:8000`. By default for secure docs use credentials: `admin:admin`.
