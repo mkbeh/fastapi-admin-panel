@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 from pydantic import Field, EmailStr
 
 from extra.enums import SocialTypes
@@ -81,7 +81,7 @@ class GoogleAccessTokenRequest(BaseModel):
     token_type: str
     expires_in: int
     expires_at: str
-    scopes: List[str]
+    scopes: list[str]
 
 
 class RegistrationFromSocialGoogle(RegistationFromSocialBase):

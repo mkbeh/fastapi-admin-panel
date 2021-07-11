@@ -1,7 +1,7 @@
 # type: ignore
 
 from __future__ import annotations
-from typing import Optional, Mapping, List, Any, TYPE_CHECKING
+from typing import Optional, Mapping, Any, TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.sql import Select
@@ -115,7 +115,7 @@ async def fetchmany(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[List[Row]]:
+) -> Optional[list[Row]]:
     """Fetch many rows.
 
     When all rows are exhausted, returns an empty list.
@@ -141,7 +141,7 @@ async def all(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[List[Row]]:
+) -> Optional[list[Row]]:
     """Return all rows in a list.
 
     Closes the result set after invocation.   Subsequent invocations
@@ -325,7 +325,7 @@ async def scalars_all(
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
     execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> List[Model]:
+) -> list[Model]:
     return (
         await async_call(
             self, session, "scalars", parameters, execution_options

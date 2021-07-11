@@ -1,5 +1,4 @@
 from enum import Flag
-from typing import List
 from schemas.base import BaseModel
 
 
@@ -10,7 +9,7 @@ class ResultMeta(BaseModel):
 
 # Properties to return via API on get objects of specific table.
 class ResultSchema(BaseModel):
-    result: List = []
+    result: list = []
     meta: ResultMeta
 
 

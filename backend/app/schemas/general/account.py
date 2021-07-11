@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 from pydantic import EmailStr, Field, validator
 
@@ -38,7 +38,7 @@ class AccountInDBBase(AccountBase):
 
     created_at: datetime = Field(None, title='Created at')
     updated_at: datetime = Field(None, title='Updated at')
-    roles: Optional[List[RoleInDB]]
+    roles: Optional[list[RoleInDB]]
 
 
 # Additional properties to return via API

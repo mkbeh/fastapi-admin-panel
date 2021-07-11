@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Tuple, Any
+from typing import TYPE_CHECKING, Optional, Any
 
 from sqlalchemy import exists
 from sqlalchemy.exc import NoResultFound
@@ -64,7 +64,7 @@ class CRUDMixin(InspectionMixin):
         db: Optional[AsyncSession] = None,
         defaults: Optional[dict] = None,
         **kwargs: Any,
-    ) -> Tuple[Model, bool]:
+    ) -> tuple[Model, bool]:
         """
         Fetches the object if exists (filtering on the provided parameters),
         else creates an instance with any unspecified parameters as default values.
@@ -84,7 +84,7 @@ class CRUDMixin(InspectionMixin):
         db: Optional[AsyncSession] = None,
         defaults: Optional[dict] = None,
         **kwargs: Any,
-    ) -> Tuple[Model, bool]:
+    ) -> tuple[Model, bool]:
         """
         A convenience method for updating an object with the given
         kwargs, creating a new one if necessary.

@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Any
 
 import aioredis
 from aiocache import Cache
@@ -28,7 +28,7 @@ class DatabaseSettings(BaseSettings):
         pre=True,
     )
     def assemble_postgres_connection(
-        cls, val: Optional[str], values: Dict[str, Any], field: ModelField
+        cls, val: Optional[str], values: dict[str, Any], field: ModelField
     ) -> Any:
         if isinstance(val, str):
             return val
@@ -57,7 +57,7 @@ class RedisSettings(BaseSettings):
 
     @validator("REDIS_URI", pre=True)
     def assemble_redis_connection(
-        cls, val: Optional[str], values: Dict[str, Any]
+        cls, val: Optional[str], values: dict[str, Any]
     ) -> str:
         """получение URL для редиса"""
         if isinstance(val, str):
@@ -72,12 +72,12 @@ class RedisSettings(BaseSettings):
 
     # default 20 minutes
     DEFAULT_CACHE_TTL = 20 * 60
-    DEFAULT_CACHE_PARAMS: Optional[Dict] = None
+    DEFAULT_CACHE_PARAMS: Optional[dict] = None
 
     @validator("DEFAULT_CACHE_PARAMS", pre=True)
     def assemble_cache_params(
-        cls, val: Optional[str], values: Dict[str, Any]
-    ) -> Dict:
+        cls, val: Optional[str], values: dict[str, Any]
+    ) -> dict:
         return dict(
             cache=Cache.REDIS,
             serializer=MsgPackSerializer(encoding=None, use_list=True),

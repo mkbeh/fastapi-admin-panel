@@ -1,4 +1,4 @@
-from typing import Dict, Awaitable
+from typing import Awaitable
 
 from faker import Faker
 
@@ -16,7 +16,7 @@ on_startup_signals = [
 ]
 
 
-async def get_token_headers() -> Dict:
+async def get_token_headers() -> dict:
     for func in on_startup_signals:
         # startup initial signals
         result = func()
@@ -33,7 +33,7 @@ async def get_token_headers() -> Dict:
     )
 
 
-def get_account_data(role: enums.Roles = enums.Roles.customer) -> Dict:
+def get_account_data(role: enums.Roles = enums.Roles.customer) -> dict:
     pwd = faker.password()
     return dict(
         fullname=faker.name(),

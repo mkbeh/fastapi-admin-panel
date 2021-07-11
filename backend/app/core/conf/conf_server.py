@@ -1,5 +1,5 @@
 import enum
-from typing import Dict, Any, Optional
+from typing import Any, Optional
 from pydantic import BaseSettings, EmailStr, validator
 
 
@@ -25,13 +25,13 @@ class ServerSettings(BaseSettings):
     SERVER_DOMAIN: str = 'http://localhost'
 
     @validator('SERVER_DOMAIN')
-    def validate_domain(cls, value: str, values: Dict[str, Any]) -> str:
+    def validate_domain(cls, value: str, values: dict[str, Any]) -> str:
         return value.rstrip('/')
 
     API_URL: Optional[str] = None
 
     @validator('API_URL')
-    def validate_api_url(cls, value: str, values: Dict[str, Any]) -> str:
+    def validate_api_url(cls, value: str, values: dict[str, Any]) -> str:
         return f'{values["SERVER_DOMAIN"]}/{values["API_V1_STR"].rstrip("/")}'
 
     SENTRY_DSN: Optional[str] = None
