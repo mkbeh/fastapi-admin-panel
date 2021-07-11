@@ -28,3 +28,5 @@ def patch_sqlalchemy_crud():
 
     # Patch select
     setattr(Select, 'exists', result_methods['exists'])
+    setattr(Select, 'with_joined', result_methods['with_joined'])
+    setattr(Select, 'with_subquery', result_methods['with_subquery'])

@@ -10,10 +10,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
 from extra.types import Paths
-from db.orm.utils import async_call
+from db.orm.utils import async_call, get_model_from_query
+from db.mixins.smartquery import smart_query
 
 if TYPE_CHECKING:
     from db.model import Model
+
+
+def sort(self, *columns: str) -> Select:
+    """
+    Shortcut for smart_query() method from smartquery mixin
+
+    Example 1:
+        User.where(age__gt=18).sort(-id).scalars_all(db)
+
+    Example 2 (with joins):
+        User.where(id__gt=0).sort(-id, roles__guid='customer').scalars_all(db)
+
+    """
+    query_model = get_model_from_query(self)
+    return smart_query(query_model, {}, columns, query=self)
 
 
 def with_joined(self, *paths: Paths) -> Select:

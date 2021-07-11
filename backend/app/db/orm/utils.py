@@ -2,6 +2,7 @@ import inspect
 from typing import Mapping, Optional, Union, no_type_check
 
 from sqlalchemy import util
+from sqlalchemy.sql import Select
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -24,3 +25,18 @@ async def async_call(
         return row_method()
 
     raise Exception("Invalid method name.")
+
+
+def get_model_from_query(query: Select) -> Model:
+    table = query.froms[0]
+    models = Model.registry._class_registry.values()
+
+    for model in models:
+        try:
+            if model.__tablename__ == table.name:
+                return model
+        except AttributeError:
+            # not table model
+            continue
+
+    raise Exception(f"Table model {table.name} not found in query.")
