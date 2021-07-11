@@ -1,20 +1,19 @@
 from enum import Flag
-from typing import List
-from schemas.base import ConfiguredBaseModel
+from schemas.base import BaseModel
 
 
 # Additional properties to return via API on get objects of specific table.
-class ResultMeta(ConfiguredBaseModel):
+class ResultMeta(BaseModel):
     count: int
 
 
 # Properties to return via API on get objects of specific table.
-class ResultSchema(ConfiguredBaseModel):
-    result: List = []
+class ResultSchema(BaseModel):
+    result: list = []
     meta: ResultMeta
 
 
-class ResultResponse(ConfiguredBaseModel):
+class ResultResponse(BaseModel):
 
     class Status(Flag):
         success = True

@@ -1,6 +1,6 @@
 import string
 import secrets
-from typing import Tuple, Optional
+from typing import Optional
 from datetime import timedelta, datetime
 
 import itsdangerous.exc
@@ -15,7 +15,7 @@ from extra import enums
 from core.settings import settings
 
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 signer = URLSafeTimedSerializer(settings.AUTH_SECRET_KEY)
 
@@ -23,7 +23,7 @@ alphabet = string.ascii_letters + string.digits
 
 
 def generate_password(length: int = 20) -> str:
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 def get_password_hash(password: str) -> str:
@@ -62,7 +62,7 @@ def decode_token(token: str, purpose: enums.TokenPurpose) -> schemas.AuthTokenPa
         payload = jwt.decode(
             token, settings.AUTH_SECRET_KEY, algorithms=[jwt.ALGORITHMS.HS256]
         )
-        if payload['purpose'] != purpose:
+        if payload["purpose"] != purpose:
             raise errors.BadToken
         return schemas.AuthTokenPayload(**payload)
     except jwt.ExpiredSignatureError:
@@ -75,14 +75,14 @@ def generate_confirmation_code(**params) -> str:
     return signer.dumps(params)
 
 
-def verify_confirmation_code(code: str, *fields: Tuple[str]) -> Optional[dict]:
+def verify_confirmation_code(code: str, *fields: str) -> Optional[dict]:
     try:
         data = signer.loads(code, max_age=settings.EMAIL_CODE_EXPIRE_MINUTES * 60)
         if set(data.keys()) == set(fields):
             return data
     except itsdangerous.exc.SignatureExpired:
         # code is too old
-        return None
+        raise errors.BadConfirmationCode
     except itsdangerous.exc.BadSignature:
         # someone tampered the code
-        return None
+        raise errors.BadConfirmationCode

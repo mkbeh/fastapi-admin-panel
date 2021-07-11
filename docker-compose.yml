@@ -1,0 +1,55 @@
+version: "3.3"
+
+services:
+
+  backend_testing:
+    build:
+        context: backend
+        dockerfile: Dockerfile
+    image: backend
+    env_file:
+      - backend/.env
+    environment:
+      - ENV=DEV
+      - POSTGRES_DB=tests
+    depends_on:
+      - postgres_db
+    entrypoint: ["/bin/bash", "-c", "alembic upgrade head; pytest ./tests -vv"]
+    network_mode: host
+
+  backend:
+    build:
+        context: backend
+        dockerfile: Dockerfile
+        args:
+          INSTALL_DEV: ${INSTALL_DEV-true}
+    image: backend
+    container_name: backend
+    # restart: always
+    env_file:
+      - backend/.env
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - postgres_db
+      - redis
+    entrypoint: ["/bin/bash", "-c", "alembic upgrade head; python main.py"]
+    # entrypoint: ["/bin/bash", "-c", "bash scripts/prestart.sh"]
+    network_mode: host
+
+  postgres_db:
+    image: postgres
+    # restart: always
+    env_file: backend/.env
+    volumes:
+      - ./scripts/multiple_databases.sh:/docker-entrypoint-initdb.d/multiple_databases.sh
+      # - ./data:/var/lib/postgresql/data
+    network_mode: host
+  
+  redis:
+    image: 'bitnami/redis:latest' # конфигурируется переменными среды
+    # restart: always
+    env_file: backend/.env      
+    # volumes:
+    #  - ./data:/var/lib/postgresql/data
+    network_mode: host

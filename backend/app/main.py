@@ -10,7 +10,7 @@ from core import sentry
 from core.config import settings
 
 
-def run_app():
+def run_app() -> FastAPI:
     logging.basicConfig(level=settings.LOGGING_LEVEL)
     fastapi_params = dict(
         title=settings.PROJECT_NAME,

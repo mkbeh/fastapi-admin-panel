@@ -22,11 +22,15 @@ def init(app):
     sentry_sdk.init(
         dsn=settings.SENTRY_DSN,
         # Sample rate - частота отправки ошибок в %. Максимальное значение 1.0.
-        # Если одна и таrже ошибка будет повторяться, тогда sentry будет отправлять только каждую четвертую ошибку.
-        # Документацией рекомендуется начинать с значения 0.25 и увеличивать при необходимости.
+        # Если одна и таrже ошибка будет повторяться, тогда sentry будет
+        # отправлять только каждую четвертую ошибку.
+        # Документацией рекомендуется начинать с значения 0.25 и увеличивать
+        # при необходимости.
         sample_rate=0.25,
         integrations=[
-            SqlalchemyIntegration(),  # Интеграция SQLAlchemy фиксирует запросы в БД в виде хлебных крошек.
+            # Интеграция SQLAlchemy фиксирует запросы в БД
+            # в виде хлебных крошек.
+            SqlalchemyIntegration(),
             AioHttpIntegration(),
         ],
     )
@@ -36,7 +40,7 @@ def init(app):
 async def send_data(request, exception) -> None:
     """Конфигурирует и отправляет данные об ошибках и исключениях в sentry."""
     try:
-        account_id = deps_auth.get_account_id_from_token(request)
+        account_id = deps_auth.get_user_id_from_token(request)
     except HTTPException:
         return
 

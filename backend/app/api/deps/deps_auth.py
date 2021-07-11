@@ -3,10 +3,14 @@ from typing import Optional
 from fastapi import Depends, Body
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
 import errors
 import schemas
 from extra import enums
 from models import Account
+
+from db.sessions import in_transaction
 from core.security import decode_token
 
 
@@ -15,18 +19,31 @@ from core.security import decode_token
 http_bearer = HTTPBearer(auto_error=False)
 
 
-def get_account_id_from_token(
+async def db_session():
+    async with in_transaction() as db:
+        yield db
+
+
+def get_user_id_from_token(
     token: Optional[HTTPAuthorizationCredentials] = Depends(http_bearer),
 ) -> int:
-    """ Получение токена из заголовков или cookie """
     if not token:
         raise errors.BadToken
-    token_payload = decode_token(token.credentials, purpose=enums.TokenPurpose.access)
+    token_payload = decode_token(
+        token=token.credentials,
+        purpose=enums.TokenPurpose.access
+    )
     return token_payload.sub
 
 
 async def verify_refresh_token(
     params: schemas.RefreshTokenParams = Body(...),
+    db: AsyncSession = Depends(db_session),
 ) -> Account:
-    token_payload = decode_token(params.refresh_token, purpose=enums.TokenPurpose.refresh)
-    return await Account.select('id').filter_by(id=token_payload.sub).one()
+    token_payload = decode_token(
+        token=params.refresh_token,
+        purpose=enums.TokenPurpose.refresh
+    )
+    return await Account\
+        .where(id=token_payload.sub)\
+        .scalar_one(db)

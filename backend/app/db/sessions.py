@@ -1,19 +1,13 @@
-from asyncio import current_task
 from contextlib import asynccontextmanager
 
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    create_async_engine,
-)
 
 from core.settings import settings
 
 
 engine = create_async_engine(settings.SQLALCHEMY_DATABASE_URI)
-async_session = sessionmaker(
-    engine, expire_on_commit=False, class_=AsyncSession
-)
+async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
 @asynccontextmanager
