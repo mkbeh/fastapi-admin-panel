@@ -1,7 +1,7 @@
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException, status
-from fastapi.openapi.docs import get_swagger_ui_html
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
@@ -21,6 +21,7 @@ def secure_docs(
     version: str = "0.1.0",
     description: Optional[str] = None,
     docs_url: str = "/docs",
+    redoc_url: str = "/redoc",
     openapi_url: str = "/openapi.json",
     **not_needed,
 ):
@@ -61,5 +62,13 @@ def secure_docs(
         include_in_schema=False,
         dependencies=[Depends(get_admin_user)]
     )
-    async def get_documentation() -> HTMLResponse:
+    async def get_swagger_documentation() -> HTMLResponse:
         return get_swagger_ui_html(openapi_url=openapi_url, title=title)
+
+    @app.get(
+        path=redoc_url,
+        include_in_schema=False,
+        dependencies=[Depends(get_admin_user)]
+    )
+    async def get_redoc_documentation() -> HTMLResponse:
+        return get_redoc_html(openapi_url=openapi_url, title=title)

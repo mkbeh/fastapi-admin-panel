@@ -6,6 +6,7 @@
 .codeclimate.yml
 .travis.yml
 .taskcluster.yml
+.circleci.yml
 
 # Byte-compiled / optimized / DLL files
 *.pyc
