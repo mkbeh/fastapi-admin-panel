@@ -5,7 +5,7 @@ from collections import OrderedDict
 from sqlalchemy import asc, desc, inspect, select, not_
 from sqlalchemy.orm import aliased, contains_eager
 from sqlalchemy.orm.util import AliasedClass
-from sqlalchemy.sql import extract, operators
+from sqlalchemy.sql import extract, operators, Select
 
 from .eagerload import (
     SUBQUERY,
@@ -70,7 +70,8 @@ def smart_query(
     root_cls: Model,
     filters: dict = None,
     sort_attrs: list[str] = None,
-    schema: dict = None
+    schema: dict = None,
+    query: Select = None,
 ):
     """
     Does magic Django-ish joins like post___user___name__startswith='Bob'
@@ -84,15 +85,9 @@ def smart_query(
         filters (dict, optional): Defaults to None.
         sort_attrs (list[str], optional): Defaults to None.
         schema (dict, optional): Defaults to None.
-
-    Raises:
-        KeyError: [description]
-        KeyError: [description]
-
-    Returns:
-        [type]: [description]
     """
-    query = select(root_cls)
+    if query is None:
+        query = select(root_cls)
 
     if not filters:
         filters = {}
@@ -334,7 +329,10 @@ class SmartQueryMixin(InspectionMixin, EagerLoadMixin):
 
     @classmethod
     def smart_query(
-        cls, filters: dict = None, sort_attrs: list[str] = None, schema: dict = None
+        cls,
+        filters: dict = None,
+        sort_attrs: list[str] = None,
+        schema: dict = None
     ):
         """
         Does magic Django-ish joins like post___user___name__startswith='Bob'
@@ -381,6 +379,10 @@ class SmartQueryMixin(InspectionMixin, EagerLoadMixin):
             select(User).order_by(*User.order_expr(*columns))
 
         Exanple 3 (with joins):
-            Post.sort('comments___rating', 'user___name').all()
+            Post.sort('comments___rating', 'user___name').all(db)
+
+        Example 4:
+            columns = ['-id']
+            Post.where(age__gt=15).sort('-id')
         """
         return cls.smart_query({}, columns)
