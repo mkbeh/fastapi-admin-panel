@@ -7,9 +7,10 @@ from .crud import CRUDMixin
 from .eagerload import EagerLoadMixin
 from .repr import ReprMixin
 from .smartquery import SmartQueryMixin
+from .serialize import SerializeMixin
 
 
 # all features combined to one mixin
-class AllFeaturesMixin(ReprMixin, CRUDMixin, SmartQueryMixin):
+class AllFeaturesMixin(ReprMixin, CRUDMixin, SmartQueryMixin, SerializeMixin):
     __abstract__ = True
     __repr__ = ReprMixin.__repr__

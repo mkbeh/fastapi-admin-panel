@@ -103,7 +103,6 @@ def smart_query(
     # whether we should eager load a relationship
     if schema:
         flat_schema = _flatten_schema(schema)
-        print(flat_schema)
     else:
         flat_schema = {}
 
