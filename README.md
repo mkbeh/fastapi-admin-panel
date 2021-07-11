@@ -1,6 +1,11 @@
 # FastAPI and PostgreSQL - Admin Panel
 
 
+[![Python 3.9](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/downloads/release/python-390/)
+![Platform](https://img.shields.io/badge/platform-linux-green.svg)
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/Naereen/StrapDown.js/blob/master/LICENSE)
+
+
 Backend stack using Python , including interactive API documentation and many useful features out of the box.
 
 
