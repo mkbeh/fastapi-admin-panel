@@ -22,10 +22,10 @@ def sort(self, *columns: str) -> Select:
     Shortcut for smart_query() method from smartquery mixin
 
     Example 1:
-        User.where(age__gt=18).sort(-id).scalars_all(db)
+        User.where(age__gt=18).sort(-id).all(db)
 
     Example 2 (with joins):
-        User.where(id__gt=0).sort(-id, roles__guid='customer').scalars_all(db)
+        User.where(id__gt=0).sort(-id, roles__guid='customer').all(db)
 
     """
     query_model = get_model_from_query(self)
@@ -56,9 +56,9 @@ def with_subquery(self, *paths: Paths) -> Select:
         (it's SQLAlchemy feature)
 
     Example 1:
-        await User.with_subquery('posts', 'posts.comments').scalars_all(db)
+        await User.with_subquery('posts', 'posts.comments').all(db)
     Example 2:
-        await User.with_subquery(User.posts, User.comments).scalars_all(db)
+        await User.with_subquery(User.posts, User.comments).all(db)
     """
     options = [subqueryload(path) for path in paths]
     return self.options(*options)
@@ -102,131 +102,7 @@ async def unique(
     return await async_call(self, session, parameters, execution_options)
 
 
-async def fetchone(
-    self,
-    session: AsyncSession = None,
-    parameters: Optional[Mapping] = None,
-    execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[Row]:
-    """
-    Fetch one row.
-
-    When all rows are exhausted, returns None.
-
-    This method is provided for backwards compatibility with
-    SQLAlchemy 1.x.x.
-
-    To fetch the first row of a result only, use the
-    :meth:`_engine.Result.first` method.  To iterate through all
-    rows, iterate the :class:`_engine.Result` object directly.
-
-    :return: a :class:`.Row` object if no filters are applied, or None
-     if no rows remain.
-    """
-    return await async_call(self, session, parameters, execution_options)
-
-
-async def fetchmany(
-    self,
-    session: AsyncSession = None,
-    parameters: Optional[Mapping] = None,
-    execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[list[Row]]:
-    """Fetch many rows.
-
-    When all rows are exhausted, returns an empty list.
-
-    This method is provided for backwards compatibility with
-    SQLAlchemy 1.x.x.
-
-    To fetch rows in groups, use the
-    :meth:`._asyncio.AsyncResult.partitions` method.
-
-    :return: a list of :class:`.Row` objects.
-
-    .. seealso::
-
-        :meth:`_asyncio.AsyncResult.partitions`
-
-    """
-    return await async_call(self, session, parameters, execution_options)
-
-
-async def all(
-    self,
-    session: AsyncSession = None,
-    parameters: Optional[Mapping] = None,
-    execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[list[Row]]:
-    """Return all rows in a list.
-
-    Closes the result set after invocation.   Subsequent invocations
-    will return an empty list.
-
-    :return: a list of :class:`.Row` objects.
-
-    """
-    return await async_call(self, session, parameters, execution_options)
-
-
-async def first(
-    self,
-    session: AsyncSession = None,
-    parameters: Optional[Mapping] = None,
-    execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[Row]:
-    """Fetch the first row or None if no row is present.
-
-    Closes the result set and discards remaining rows.
-
-    .. note::  This method returns one **row**, e.g. tuple, by default. To
-       return exactly one single scalar value, that is, the first column of
-       the first row, use the :meth:`_asyncio.AsyncResult.scalar` method,
-       or combine :meth:`_asyncio.AsyncResult.scalars` and
-       :meth:`_asyncio.AsyncResult.first`.
-
-    :return: a :class:`.Row` object, or None
-     if no rows remain.
-
-    .. seealso::
-
-        :meth:`_asyncio.AsyncResult.scalar`
-
-        :meth:`_asyncio.AsyncResult.one`
-
-    """
-    return await async_call(self, session, parameters, execution_options)
-
-
-async def one_or_none(
-    self,
-    session: AsyncSession = None,
-    parameters: Optional[Mapping] = None,
-    execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Optional[Row]:
-    """Return at most one result or raise an exception.
-
-    Returns ``None`` if the result has no rows.
-    Raises :class:`.MultipleResultsFound`
-    if multiple rows are returned.
-
-    .. versionadded:: 1.4
-
-    :return: The first :class:`.Row` or None if no row is available.
-
-    :raises: :class:`.MultipleResultsFound`
-
-    .. seealso::
-
-        :meth:`_asyncio.AsyncResult.first`
-
-        :meth:`_asyncio.AsyncResult.one`
-
-    """
-    return await async_call(self, session, parameters, execution_options)
-
-
-async def scalar_one(
+async def one(
     self,
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
@@ -244,10 +120,10 @@ async def scalar_one(
         :meth:`_asyncio.AsyncResult.scalars`
 
     """
-    return await async_call(self, session, parameters, execution_options)
+    return await async_call(self, session, 'scalar_one', parameters, execution_options)
 
 
-async def scalar_one_or_none(
+async def one_or_none(
     self,
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,
@@ -265,44 +141,7 @@ async def scalar_one_or_none(
         :meth:`_asyncio.AsyncResult.scalars`
 
     """
-    return await async_call(self, session, parameters, execution_options)
-
-
-async def one(
-    self,
-    session: AsyncSession = None,
-    parameters: Optional[Mapping] = None,
-    execution_options: Mapping = sa.util.EMPTY_DICT,
-) -> Row:
-    """Return exactly one row or raise an exception.
-
-    Raises :class:`.NoResultFound` if the result returns no
-    rows, or :class:`.MultipleResultsFound` if multiple rows
-    would be returned.
-
-    .. note::  This method returns one **row**, e.g. tuple, by default.
-       To return exactly one single scalar value, that is, the first
-       column of the first row, use the
-       :meth:`_asyncio.AsyncResult.scalar_one` method, or combine
-       :meth:`_asyncio.AsyncResult.scalars` and
-       :meth:`_asyncio.AsyncResult.one`.
-
-    .. versionadded:: 1.4
-
-    :return: The first :class:`.Row`.
-
-    :raises: :class:`.MultipleResultsFound`, :class:`.NoResultFound`
-
-    .. seealso::
-
-        :meth:`_asyncio.AsyncResult.first`
-
-        :meth:`_asyncio.AsyncResult.one_or_none`
-
-        :meth:`_asyncio.AsyncResult.scalar_one`
-
-    """
-    return await async_call(self, session, parameters, execution_options)
+    return await async_call(self, session, 'scalar_one_or_none', parameters, execution_options)
 
 
 async def scalar(
@@ -324,7 +163,29 @@ async def scalar(
     :return: a Python scalar value , or None if no rows remain.
 
     """
-    return await async_call(self, session, parameters, execution_options)
+    return await async_call(self, session, 'scalar', parameters, execution_options)
+
+
+async def first(
+    self,
+    session: AsyncSession = None,
+    parameters: Optional[Mapping] = None,
+    execution_options: Mapping = sa.util.EMPTY_DICT,
+) -> Any:
+    """Fetch the first column of the first row, and close the result set.
+
+    Returns None if there are no rows to fetch.
+
+    No validation is performed to test if additional rows remain.
+
+    After calling this method, the object is fully closed,
+    e.g. the :meth:`_engine.CursorResult.close`
+    method will have been called.
+
+    :return: a Python scalar value , or None if no rows remain.
+
+    """
+    return await async_call(self, session, 'scalar', parameters, execution_options)
 
 
 async def scalars(
@@ -336,7 +197,7 @@ async def scalars(
     return await async_call(self, session, parameters, execution_options)
 
 
-async def scalars_all(
+async def all(
     self,
     session: AsyncSession = None,
     parameters: Optional[Mapping] = None,

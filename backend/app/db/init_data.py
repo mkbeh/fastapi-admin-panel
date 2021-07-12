@@ -21,7 +21,7 @@ async def create_initial_superuser():
                 registration_type=enums.RegistrationTypes.forms,
             )\
             .with_joined('account')\
-            .scalar_one_or_none(db)
+            .one_or_none(db)
 
         if auth_data:
             if not auth_data.is_confirmed:

@@ -72,7 +72,7 @@ class Account(Model, TimestampsMixin):
         skip_confirmation: bool = False,
         **fields
     ) -> Account:
-        role = await Role.where(name=role).scalar_one(db)
+        role = await Role.where(name=role).one(db)
         account = await super().create(db=db, roles=[role], **fields)
         auth_data = await AuthorizationData.create(
             db=db,
@@ -97,7 +97,7 @@ class Account(Model, TimestampsMixin):
         if fields.get("password"):
             auth_data = await AuthorizationData\
                 .where(account_id=self.id)\
-                .scalar_one(db)
+                .one(db)
             await auth_data.update(db, password=fields.pop("password"))
 
         return await super().update(db, **fields)

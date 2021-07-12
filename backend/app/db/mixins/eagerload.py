@@ -104,9 +104,9 @@ class EagerLoadMixin:
          (it's SQLAlchemy feature)
 
         Example 1:
-            await User.with_subquery('posts', 'posts.comments').scalars_all(db)
+            await User.with_subquery('posts', 'posts.comments').all(db)
         Example 2:
-            await User.with_subquery(User.posts, User.comments).scalars_all(db)
+            await User.with_subquery(User.posts, User.comments).all(db)
         """
         options = [subqueryload(path) for path in paths]
         return select(cls).options(*options)

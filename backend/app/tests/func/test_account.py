@@ -56,7 +56,7 @@ class TestAccount:
     async def test_confirm_account(self, async_client, db):
         account = await select(Account).filter_by(
             email=TestAccount.data['email']
-        ).scalar_one(db)
+        ).one(db)
 
         resp = await async_client.post(
             '/webhooks/confirm/account',
@@ -96,7 +96,7 @@ class TestAccount:
     async def test_change_password(self, async_client, db):
         account = await select(Account).filter_by(
             email=TestAccount.data['email']
-        ).scalar_one(db)
+        ).one(db)
         TestAccount.data.update(password=faker.password(length=12))
         resp = await async_client.post('/webhooks/change_password', json=dict(
             code=generate_confirmation_code(account_id=account.id),

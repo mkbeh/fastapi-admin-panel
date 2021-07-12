@@ -44,6 +44,4 @@ async def verify_refresh_token(
         token=params.refresh_token,
         purpose=enums.TokenPurpose.refresh
     )
-    return await Account\
-        .where(id=token_payload.sub)\
-        .scalar_one(db)
+    return await Account.where(id=token_payload.sub).one(db)

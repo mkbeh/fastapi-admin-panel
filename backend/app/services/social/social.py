@@ -234,7 +234,7 @@ async def registration(
     social_integration = await SocialIntegration.where(
         social_type=social_type,
         external_id=external_id,
-    ).scalar_one_or_none(db)
+    ).one_or_none(db)
 
     if social_integration:
         # user was logged in before through this social
@@ -244,7 +244,7 @@ async def registration(
         auth_data = await AuthorizationData.where(
             login=schema.email,
             registration_type=enums.RegistrationTypes.social,
-        ).scalar_one_or_none(db)
+        ).one_or_none(db)
         if auth_data:
             # user was logged in before through another social with this email
             await SocialIntegration.create(
@@ -255,9 +255,7 @@ async def registration(
             )
             account_id = auth_data.account_id
         else:
-            account = await Account.where(
-                email=schema.email
-            ).scalar_one_or_none(db)
+            account = await Account.where(email=schema.email).one_or_none(db)
             if account:
                 auth_data = await AuthorizationData.create(
                     db=db,
