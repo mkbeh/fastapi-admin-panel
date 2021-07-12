@@ -12,4 +12,5 @@ accounts_data = [get_account_data(exclude=['password2']) for _ in range(3)]
 async def test_repr(db, data):
     account = await Account.create(db, **data)
     for attr in Account.__repr_attrs__:
-        assert attr in repr(account)
+        val = getattr(account, attr)
+        assert val[:Account.__repr_max_length__] in repr(account)
