@@ -54,7 +54,7 @@ class Account(Model, TimestampsMixin):
 
     @hybrid_property
     def is_active(self) -> bool:
-        return any(a.confirmed_at for a in self.auths)
+        return any(bool(a.confirmed_at) for a in self.auths)
 
     @hybrid_method
     def has_role(self, role: Roles) -> bool:
@@ -95,9 +95,7 @@ class Account(Model, TimestampsMixin):
 
     async def update(self, db, **fields) -> Account:
         if fields.get("password"):
-            auth_data = await AuthorizationData\
-                .where(account_id=self.id)\
-                .one(db)
+            auth_data = await AuthorizationData.where(account_id=self.id).one(db)
             await auth_data.update(db, password=fields.pop("password"))
 
         return await super().update(db, **fields)
