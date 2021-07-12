@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import select
 
-from models import Account, Role
+from models import Account
 from tests.utils import get_account_data, faker
 from core.security import generate_confirmation_code
 from extra.enums import Roles
@@ -29,14 +29,14 @@ class TestAccount:
         assert resp.status_code == 200
 
     async def test_read_acccount_by_id(self, async_client, db):
-        account = await select(Account).scalar(db)
+        account = await select(Account).first(db)
 
         resp = await async_client.get(f'/accounts/{account.id}')
         assert resp.status_code == 200
         assert resp.json()['id'] == account.id
 
     async def test_update_account(self, async_client, db):
-        account = await select(Account).scalar(db)
+        account = await select(Account).first(db)
         new_data = get_account_data()
 
         resp = await async_client.put(f'/accounts/{account.id}', json=new_data)
@@ -54,7 +54,7 @@ class TestAccount:
         assert resp.json()['result'] is True
 
     async def test_confirm_account(self, async_client, db):
-        account = await select(Account).filter_by(
+        account = await Account.where(
             email=TestAccount.data['email']
         ).one(db)
 
@@ -94,7 +94,7 @@ class TestAccount:
         assert resp.status_code == 200
 
     async def test_change_password(self, async_client, db):
-        account = await select(Account).filter_by(
+        account = await Account.where(
             email=TestAccount.data['email']
         ).one(db)
         TestAccount.data.update(password=faker.password(length=12))
@@ -109,9 +109,9 @@ class TestAccount:
         await self.test_login(async_client)
 
     async def test_delete_account(self, async_client, db):
-        account = await select(Account).filter(
-            Account.roles.any(Role.name == Roles.customer),
-        ).scalar(db)
+        account = await Account.where(
+            roles___name__in=[Roles.customer]
+        ).first(db)
 
         resp = await async_client.delete(f'/accounts/{account.id}')
         assert resp.status_code == 200
