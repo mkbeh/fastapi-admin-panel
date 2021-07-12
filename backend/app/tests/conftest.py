@@ -65,7 +65,7 @@ def pytest_runtest_setup(item):
 
 
 @pytest.fixture(scope="class", autouse=True)
-async def async_client() -> Generator:
+async def async_client(db) -> Generator:
     await db_init()
 
     headers = await get_token_headers()
@@ -87,3 +87,4 @@ def event_loop():
 async def db():
     async with in_transaction() as db:
         yield db
+    await clear_db()

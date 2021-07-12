@@ -4,6 +4,8 @@ from faker import Faker
 
 from db.init_data import create_initial_roles, create_initial_superuser
 from db.orm.patcher import patch_sqlalchemy_crud
+from db.model import Model
+from db.sessions import engine
 
 from core.security import generate_token
 from extra import enums
@@ -33,9 +35,18 @@ async def get_token_headers() -> dict:
     )
 
 
-def get_account_data(role: enums.Roles = enums.Roles.customer) -> dict:
+async def clear_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Model.metadata.drop_all)
+        await conn.run_sync(Model.metadata.create_all)
+
+
+def get_account_data(
+    role: enums.Roles = enums.Roles.customer,
+    exclude: list[str] = None,
+) -> dict:
     pwd = faker.password()
-    return dict(
+    data = dict(
         fullname=faker.name(),
         email=faker.company_email(),
         phone=faker.phone_number(),
@@ -43,3 +54,9 @@ def get_account_data(role: enums.Roles = enums.Roles.customer) -> dict:
         password=pwd,
         password2=pwd,
     )
+
+    if exclude:
+        for field in exclude:
+            del data[field]
+
+    return data
