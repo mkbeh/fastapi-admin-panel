@@ -11,6 +11,6 @@ from .serialize import SerializeMixin
 
 
 # all features combined to one mixin
-class AllFeaturesMixin(ReprMixin, CRUDMixin, SmartQueryMixin, SerializeMixin):
+class AllFeaturesMixin(ReprMixin, CRUDMixin, SmartQueryMixin):
     __abstract__ = True
     __repr__ = ReprMixin.__repr__
