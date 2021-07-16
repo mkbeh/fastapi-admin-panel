@@ -72,7 +72,7 @@ def smart_query(
     sort_attrs: list[str] = None,
     schema: dict = None,
     query: Select = None,
-):
+) -> Select:
     """
     Does magic Django-ish joins like post___user___name__startswith='Bob'
      (see https://goo.gl/jAgCyM)
