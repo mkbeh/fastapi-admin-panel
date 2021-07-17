@@ -36,7 +36,7 @@ convention = {
 async def db_init() -> None:
     Model.metadata.naming_convention = convention
 
-    async with engine.begin() as conn:  # noqa
+    async with engine.begin() as conn:
         logger.info(
             "Connection to %s", settings.SQLALCHEMY_DATABASE_URI_HIDDEN_PWD
         )

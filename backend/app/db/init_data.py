@@ -21,11 +21,11 @@ async def create_initial_superuser():
                 registration_type=enums.RegistrationTypes.forms,
             )\
             .with_joined('account')\
-            .scalar_one_or_none(db)
+            .one_or_none(db)
 
         if auth_data:
             if not auth_data.is_confirmed:
-                await auth_data.update(db=db, confirmed_at=datetime.utcnow())
+                await auth_data.update(db, confirmed_at=datetime.utcnow())
             account = auth_data.account
         else:
             account = await models.Account.create(

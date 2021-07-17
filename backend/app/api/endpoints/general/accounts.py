@@ -42,7 +42,7 @@ async def read_account_by_id(
     _: Account = Depends(deps_account.get_current_active_superuser),
 ) -> Any:
     """Get a specific user by id"""
-    return await Account.where(id=object_id).scalar_one(db)
+    return await Account.where(id=object_id).one(db)
 
 
 @router.get(
@@ -62,7 +62,7 @@ async def read_accounts(
     accounts = await select(Account) \
         .offset(commons.skip) \
         .limit(commons.limit) \
-        .scalars_all(db)
+        .all(db)
 
     return accounts, db
 
@@ -101,7 +101,7 @@ async def update_account(
     _: Account = Depends(deps_account.get_current_active_superuser),
 ) -> Any:
     """Update specific user by id"""
-    db_obj = await Account.where(id=object_id).scalar_one(db)
+    db_obj = await Account.where(id=object_id).one(db)
     return await db_obj.update(db, **schema_in.dict(exclude_unset=True))
 
 
@@ -159,7 +159,7 @@ async def change_account_password(
     auth_data = AuthorizationData.where(
         login=schema_in.login,
         registration_type=enums.RegistrationTypes.forms,
-    ).scalar_one_or_none(db)
+    ).one_or_none(db)
 
     if not auth_data:
         # no email found

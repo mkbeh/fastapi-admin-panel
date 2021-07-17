@@ -20,7 +20,8 @@ def add_count(
     response_schema: ModelSchema
 ):
     """
-    This decorator can be accepted only for all read many rows methods.
+    Add meta information - count of all rows to the response.
+
     Gets a list of model objects and adds a count of all objects in this
     model to the resulting schema.
     """

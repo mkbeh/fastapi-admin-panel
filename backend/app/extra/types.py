@@ -1,4 +1,6 @@
 from typing import Union
+from sqlalchemy.sql import Delete, Insert, Select, Update
+from sqlalchemy.sql.selectable import Exists
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 import schemas
@@ -11,3 +13,5 @@ SocialRegistrationSchema = Union[
     schemas.RegistrationFromSocialFacebook,
     schemas.RegistrationFromSocialGoogle,
 ]
+
+QueryType = Union[Delete, Insert, Select, Update, Exists]

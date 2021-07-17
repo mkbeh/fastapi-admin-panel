@@ -1,3 +1,10 @@
+"""
+Serialize mixin.
+
+This mixin is unstable at the moment when working with relashions, please
+refrain from using it. Or use it with the "nested=False" attribute.
+"""
+
 from typing import Any
 from collections.abc import Iterable
 

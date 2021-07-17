@@ -51,6 +51,8 @@ Backend stack using Python , including interactive API documentation and many us
 
 * Integration with **Social Networks** (Vkontake, Facebook, Gmail).
 
+* Beauty mixins for **Asynchronous SQLAlchemy**.
+
 
 ## How to use it
 

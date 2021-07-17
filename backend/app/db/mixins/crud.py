@@ -48,7 +48,7 @@ class CRUDMixin(InspectionMixin):
         db: AsyncSession,
         **fields: str
     ) -> Model:
-        return await cls(**fields).save(db)
+        return await cls().fill(**fields).save(db)
 
     async def update(
         self,
@@ -97,8 +97,41 @@ class CRUDMixin(InspectionMixin):
             kwargs |= defaults or {}
             return await cls.create(db, **kwargs), True
         else:
-            await instance.update(**defaults)
+            await instance.update(db, **defaults)
             return instance, False
+
+    @classmethod
+    async def find(
+        cls,
+        db: Optional[AsyncSession],
+        id: int,
+    ) -> Model:
+        """
+        Find record by id.
+
+        Args:
+            id_ (int): Primary key
+
+        Raises: NoResultFound
+        """
+        instance = await db.get(cls, id)
+        if not instance:
+            raise NoResultFound
+        return instance
+
+    @classmethod
+    async def find_or_none(
+        cls,
+        db: Optional[AsyncSession],
+        id: int,
+    ) -> Model:
+        """
+        Find record by id.
+
+        Args:
+            id_ (int): Primary key
+        """
+        return await db.get(cls, id)
 
     @classmethod
     async def exists(
