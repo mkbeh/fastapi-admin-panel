@@ -9,11 +9,8 @@ from .sessions import in_transaction
 
 async def create_initial_roles():
     async with in_transaction() as db:
-        role = await models.Role.where().first(db)
-        pass
-
-        # for role in enums.Roles:
-        #     await models.Role.get_or_create(db, guid=role.name, name=role.value)
+        for role in enums.Roles:
+            await models.Role.get_or_create(db, guid=role.name, name=role.value)
 
 
 async def create_initial_superuser():
@@ -28,7 +25,7 @@ async def create_initial_superuser():
 
         if auth_data:
             if not auth_data.is_confirmed:
-                await auth_data.update(db=db, confirmed_at=datetime.utcnow())
+                await auth_data.update(db, confirmed_at=datetime.utcnow())
             account = auth_data.account
         else:
             account = await models.Account.create(

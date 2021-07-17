@@ -64,6 +64,26 @@ def with_subquery(self, *paths: Paths) -> Select:
     return self.options(*options)
 
 
+async def count(self, db: AsyncSession) -> int:
+    """
+    Syntactic sugar for count.
+
+    Can be used as an alternative of following:
+
+        count = sa.select(sa.func.count())\
+            .select_from(sa.select(models.Account).subquery())\
+            .scalar()
+
+    Example:
+
+        count = await select(Account).count(db)
+
+    """
+    return await sa.select(sa.func.count())\
+        .select_from(self.subquery())\
+        .scalar(db)
+
+
 async def exists(self, db: AsyncSession) -> bool:
     """
     Syntactic sugar for exists.
@@ -163,7 +183,7 @@ async def scalar(
     :return: a Python scalar value , or None if no rows remain.
 
     """
-    return await async_call(self, session, 'scalar', parameters, execution_options)
+    return await async_call(self, session, parameters, execution_options)
 
 
 async def first(

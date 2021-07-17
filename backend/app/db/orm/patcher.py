@@ -7,9 +7,10 @@ from . import result
 
 
 select_methods_names = [
-    'exists',
-    'with_joined',
-    'with_subquery',
+    "exists",
+    "count",
+    "with_joined",
+    "with_subquery",
 ]
 
 
