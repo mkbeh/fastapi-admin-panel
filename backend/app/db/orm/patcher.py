@@ -7,6 +7,7 @@ from . import result
 
 
 select_methods_names = [
+    "only",
     "exists",
     "count",
     "with_joined",
