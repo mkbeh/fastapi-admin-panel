@@ -5,7 +5,7 @@ from typing import Optional, Mapping, Any, TYPE_CHECKING
 
 import sqlalchemy as sa
 from sqlalchemy.sql import Select
-from sqlalchemy.orm import joinedload, subqueryload
+from sqlalchemy.orm import joinedload, subqueryload, load_only
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine.row import Row
 
@@ -15,6 +15,11 @@ from db.mixins.smartquery import smart_query
 
 if TYPE_CHECKING:
     from db.model import Model
+
+
+def only(self, *columns: str) -> Select:
+    """Shortcut for load only specific columns."""
+    return self.options(load_only(*columns))
 
 
 def sort(self, *columns: str) -> Select:
