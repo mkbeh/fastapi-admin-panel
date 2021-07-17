@@ -6,6 +6,13 @@ from sqlalchemy.sql.selectable import Exists
 from . import result
 
 
+select_methods_names = [
+    'exists',
+    'with_joined',
+    'with_subquery',
+]
+
+
 def patch_sqlalchemy_crud():
     sqlalchemy_crud_classes = (
         Insert,
@@ -18,7 +25,7 @@ def patch_sqlalchemy_crud():
     result_methods = {
         name: func
         for name, func in result.__dict__.items()
-        if isfunction(func)
+        if isfunction(func) and name not in select_methods_names
     }
 
     # Patch all
@@ -27,6 +34,11 @@ def patch_sqlalchemy_crud():
             setattr(c, name, method)
 
     # Patch select
-    setattr(Select, 'exists', result_methods['exists'])
-    setattr(Select, 'with_joined', result_methods['with_joined'])
-    setattr(Select, 'with_subquery', result_methods['with_subquery'])
+    select_methods = {
+        name: func
+        for name, func in result.__dict__.items()
+        if isfunction(func) and name in select_methods_names
+    }
+
+    for name, method in select_methods.items():
+        setattr(Select, name, select_methods[name])

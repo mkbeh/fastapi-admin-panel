@@ -9,8 +9,11 @@ from .sessions import in_transaction
 
 async def create_initial_roles():
     async with in_transaction() as db:
-        for role in enums.Roles:
-            await models.Role.get_or_create(db, guid=role.name, name=role.value)
+        role = await models.Role.where().first(db)
+        pass
+
+        # for role in enums.Roles:
+        #     await models.Role.get_or_create(db, guid=role.name, name=role.value)
 
 
 async def create_initial_superuser():
