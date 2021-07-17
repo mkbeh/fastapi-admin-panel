@@ -109,7 +109,10 @@ class Role(Model):
     name = Column(Enum(Roles, length=100), unique=True, nullable=False, index=True)
 
     accounts = relationship(
-        "Account", secondary=account_role, back_populates="roles", passive_deletes=True
+        "Account",
+        secondary=account_role,
+        back_populates="roles",
+        passive_deletes=True,
     )
 
 
