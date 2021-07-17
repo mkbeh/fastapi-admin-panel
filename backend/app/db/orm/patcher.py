@@ -24,13 +24,13 @@ def patch_sqlalchemy_crud():
         Exists,
     )
 
+    # Patch all
     result_methods = {
         name: func
         for name, func in result.__dict__.items()
         if isfunction(func) and name not in select_methods_names
     }
 
-    # Patch all
     for name, method in result_methods.items():
         for c in sqlalchemy_crud_classes:
             setattr(c, name, method)
