@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from sqlalchemy.orm import joinedload, subqueryload
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.sql import Select
 
@@ -108,5 +108,5 @@ class EagerLoadMixin:
         Example 2:
             await User.with_subquery(User.posts, User.comments).all(db)
         """
-        options = [subqueryload(path) for path in paths]
+        options = [selectinload(path) for path in paths]
         return select(cls).options(*options)
