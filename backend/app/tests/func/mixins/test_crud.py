@@ -41,23 +41,23 @@ class BaseModel(Base, CRUDMixin, SmartQueryMixin):
 
 
 class User(BaseModel):
-    __tablename__ = 'user'
-    __repr_attrs__ = ['name']
+    __tablename__ = "user"
+    __repr_attrs__ = ["name"]
     id = sa.Column(sa.Integer, primary_key=True)
     name = sa.Column(sa.String)
-    posts = sa.orm.relationship('Post', backref='user')
-    posts_viewonly = sa.orm.relationship('Post', viewonly=True)
+    posts = sa.orm.relationship("Post", backref="user")
+    posts_viewonly = sa.orm.relationship("Post", viewonly=True)
 
 
 class Post(BaseModel):
-    __tablename__ = 'post'
+    __tablename__ = "post"
     id = sa.Column(sa.Integer, primary_key=True)
     body = sa.Column(sa.String)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'))
+    user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
     archived = sa.Column(sa.Boolean, default=False)
 
     # user = backref from User.post
-    comments = sa.orm.relationship('Comment', backref='post')
+    comments = sa.orm.relationship("Comment", backref="post")
 
     @hybrid_property
     def public(self):
@@ -69,18 +69,19 @@ class Post(BaseModel):
 
 
 class Comment(BaseModel):
-    __tablename__ = 'comment'
-    __repr_attrs__ = ['body']
+    __tablename__ = "comment"
+    __repr_attrs__ = ["body"]
     id = sa.Column(sa.Integer, primary_key=True)
     body = sa.Column(sa.String)
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('user.id'))
-    post_id = sa.Column(sa.Integer, sa.ForeignKey('post.id'))
+    user_id = sa.Column(sa.Integer, sa.ForeignKey("user.id"))
+    post_id = sa.Column(sa.Integer, sa.ForeignKey("post.id"))
 
-    user = sa.orm.relationship('User', backref='comments')
+    user = sa.orm.relationship("User", backref="comments")
     # post = backref from Post.comments
 
 
-users_data = [{'name': faker.name()} for _ in range(3)]
+def get_users_data():
+    return [{"name": faker.name()} for _ in range(3)]
 
 
 @pytest.mark.incremental
@@ -88,18 +89,28 @@ users_data = [{'name': faker.name()} for _ in range(3)]
 class TestTimestamps:
     def test_settable_attributes(self):
         assert set(User.settable_attributes) == {
-            'id', 'name',  # normal columns,
-            'posts', 'comments'  # relations
+            "id",
+            "name",  # normal columns,
+            "posts",
+            "comments",  # relations
         }
-        assert 'posts_viewonly' not in set(User.settable_attributes)
+        assert "posts_viewonly" not in set(User.settable_attributes)
         assert set(Post.settable_attributes) == {
-            'id', 'body', 'user_id', 'archived',    # normal columns
-            'user', 'comments',  # relations
-            'public'  # hybrid attributes
+            "id",
+            "body",
+            "user_id",
+            "archived",  # normal columns
+            "user",
+            "comments",  # relations
+            "public",  # hybrid attributes
         }
         assert set(Comment.settable_attributes) == {
-            'id', 'body', 'post_id', 'user_id',  # normal columns
-            'user', 'post'  # hybrid attributes
+            "id",
+            "body",
+            "post_id",
+            "user_id",  # normal columns
+            "user",
+            "post",  # hybrid attributes
         }
 
     async def test_fill_and_save(self, db):
@@ -124,7 +135,7 @@ class TestTimestamps:
         assert p11 == await db.scalar(sa.select(Post).filter_by(body=p11.body))
         assert p11.archived is True
 
-    @pytest.mark.parametrize('data', users_data)
+    @pytest.mark.parametrize("data", get_users_data())
     async def test_update(self, db, data):
         user = await User.create(db, **data)
         user = await db.get(User, user.id)
@@ -133,18 +144,17 @@ class TestTimestamps:
 
         assert user.name == new_user.name
 
-
     async def test_fill_wrong_attribute(self, db):
         user = await User.create(db, name=faker.name())
 
         with pytest.raises(KeyError):
-            user.fill(INCORRECT_ATTRUBUTE='nomatter')
+            user.fill(INCORRECT_ATTRUBUTE="nomatter")
 
         with pytest.raises(KeyError):
-            await user.update(db, INCORRECT_ATTRUBUTE='nomatter')
+            await user.update(db, INCORRECT_ATTRUBUTE="nomatter")
 
         with pytest.raises(KeyError):
-            await User.create(db, INCORRECT_ATTRUBUTE='nomatter')
+            await User.create(db, INCORRECT_ATTRUBUTE="nomatter")
 
     async def test_find(self, db):
         user = await User.create(db, name=faker.name())
@@ -159,7 +169,7 @@ class TestTimestamps:
         """Test CRUD exists (require SmartQueryMixin)."""
         user = await User.create(db, name=faker.name())
         assert await User.exists(db, id=user.id, name=user.name) is True
-        assert await User.exists(db, id=user.id, name='nomatter') is False
+        assert await User.exists(db, id=user.id, name="nomatter") is False
 
     async def test_get_or_create(self, db):
         name = faker.name()
@@ -174,3 +184,16 @@ class TestTimestamps:
 
         user, is_created = await User.update_or_create(db, id=user.id)
         assert is_created is False
+
+    async def test_bulk_create(self, db):
+        names = [faker.name() for _ in range(3)]
+        users = [User(name=name) for name in names]
+        await User.bulk_create(db, users)
+
+        db_users_names = (
+            (await db.execute(sa.select(User.name).filter(User.name.in_(names))))
+            .scalars()
+            .all()
+        )
+
+        assert names == db_users_names

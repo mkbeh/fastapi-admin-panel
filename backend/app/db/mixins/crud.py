@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Any
+from typing import TYPE_CHECKING, Optional, Any, Iterable
 
 from sqlalchemy import exists
 from sqlalchemy.exc import NoResultFound
@@ -49,6 +49,17 @@ class CRUDMixin(InspectionMixin):
         **fields: str
     ) -> Model:
         return await cls().fill(**fields).save(db)
+
+    @classmethod
+    async def bulk_create(
+        cls,
+        db: AsyncSession,
+        objects: Iterable[Model]
+    ):
+        """Add and create the given collection of instances."""
+        db.add_all(objects)
+        await db.flush()
+
 
     async def update(
         self,
