@@ -207,7 +207,7 @@ async def send_confirmation_email(
         social_type, external_id = schema.get_type_and_user_id()
 
         account = await Account.create(
-            db=db,
+            session=db,
             email=schema.email,
             password=get_random_string(),
             registration_type=enums.RegistrationTypes.social,
@@ -248,7 +248,7 @@ async def registration(
         if auth_data:
             # user was logged in before through another social with this email
             await SocialIntegration.create(
-                db=db,
+                session=db,
                 auth_data_id=auth_data.id,
                 social_type=social_type,
                 external_id=external_id
@@ -258,14 +258,14 @@ async def registration(
             account = await Account.where(email=schema.email).one_or_none(db)
             if account:
                 auth_data = await AuthorizationData.create(
-                    db=db,
+                    session=db,
                     account_id=account.id,
                     registration_type=enums.RegistrationTypes.social,
                     login=schema.email,
                     password=get_random_string()
                 )
                 await SocialIntegration.create(
-                    db=db,
+                    session=db,
                     auth_data_id=auth_data.id,
                     social_type=social_type,
                     external_id=external_id
@@ -273,7 +273,7 @@ async def registration(
             else:
                 # totally new user
                 account = await Account.create(
-                    db=db,
+                    session=db,
                     email=schema.email,
                     password=get_random_string(),
                     registration_type=enums.RegistrationTypes.social,

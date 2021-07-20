@@ -85,14 +85,14 @@ class TestORM:
         comment1 = await Comment.create(db, body='cool!', user=bob)
         comment2 = await Comment.create(db, body='cool2!!!!', user=bill)
         post1 = await Post.create(
-            db=db,
+            session=db,
             body='Post 1',
             user=bob,
             rating=3,
             comments=[comment2]
         )
         post2 = await Post.create(
-            db=db,
+            session=db,
             body='long-long-long-long-long body',
             rating=2,
             user=bill,

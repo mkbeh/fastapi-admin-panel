@@ -12,6 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from extra.enums import Roles, RegistrationTypes, SocialTypes
 from db.model import Model
@@ -63,7 +64,7 @@ class Account(Model, TimestampsMixin):
     @classmethod
     async def create(
         cls,
-        db,
+        session: AsyncSession,
         password: str,
         role: Roles = Roles.customer,
         registration_type: RegistrationTypes = RegistrationTypes.forms,
@@ -72,10 +73,10 @@ class Account(Model, TimestampsMixin):
         skip_confirmation: bool = False,
         **fields
     ) -> Account:
-        role = await Role.where(name=role).one(db)
-        account = await super().create(db=db, roles=[role], **fields)
+        role = await Role.where(name=role).one(session)
+        account = await super().create(session=session, roles=[role], **fields)
         auth_data = await AuthorizationData.create(
-            db=db,
+            session=session,
             login=fields.get("email") or fields.get("phone"),
             password=password,
             registration_type=registration_type,
@@ -85,7 +86,7 @@ class Account(Model, TimestampsMixin):
 
         if registration_type == RegistrationTypes.social:
             await SocialIntegration.create(
-                db=db,
+                session=session,
                 social_type=social_type,
                 external_id=external_id,
                 auth_data_id=auth_data.id,
@@ -93,15 +94,19 @@ class Account(Model, TimestampsMixin):
 
         return account
 
-    async def update(self, db, **fields) -> Account:
+    async def update(
+        self,
+        session: AsyncSession,
+        **fields
+    ) -> Account:
         if fields.get("password"):
             auth_data = await AuthorizationData.where(
                 account_id=self.id,
                 registration_type=RegistrationTypes.forms,
-            ).one(db)
-            await auth_data.update(db, password=fields.pop("password"))
+            ).one(session)
+            await auth_data.update(session, password=fields.pop("password"))
 
-        return await super().update(db, **fields)
+        return await super().update(session, **fields)
 
 
 class Role(Model):
