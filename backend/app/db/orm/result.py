@@ -69,7 +69,7 @@ def with_subquery(self, *paths: Paths) -> Select:
     return self.options(*options)
 
 
-async def count(self, db: AsyncSession) -> int:
+async def count(self, session: AsyncSession) -> int:
     """
     Syntactic sugar for count.
 
@@ -86,10 +86,10 @@ async def count(self, db: AsyncSession) -> int:
     """
     return await sa.select(sa.func.count())\
         .select_from(self.subquery())\
-        .scalar(db)
+        .scalar(session)
 
 
-async def exists(self, db: AsyncSession) -> bool:
+async def exists(self, session: AsyncSession) -> bool:
     """
     Syntactic sugar for exists.
 
@@ -106,7 +106,7 @@ async def exists(self, db: AsyncSession) -> bool:
             .exists(db)
 
     """
-    return await sa.exists(self).select().scalar(db)
+    return await sa.exists(self).select().scalar(session)
 
 
 async def execute(

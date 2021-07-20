@@ -31,48 +31,48 @@ class CRUDMixin(InspectionMixin):
 
     async def save(
         self,
-        db: AsyncSession,
+        session: AsyncSession,
         flush: bool = True,
         refresh: bool = False
     ) -> Model:
-        db.add(self)
+        session.add(self)
         if flush:
-            await db.flush()
+            await session.flush()
         if refresh:
-            await db.refresh(self)
+            await session.refresh(self)
         return self
 
     @classmethod
     async def create(
         cls,
-        db: AsyncSession,
+        session: AsyncSession,
         **fields: str
     ) -> Model:
-        return await cls().fill(**fields).save(db)
+        return await cls().fill(**fields).save(session)
 
     @classmethod
     async def bulk_create(
         cls,
-        db: AsyncSession,
+        session: AsyncSession,
         objects: Iterable[Model]
     ):
         """Add and create the given collection of instances."""
-        db.add_all(objects)
-        await db.flush()
+        session.add_all(objects)
+        await session.flush()
 
 
     async def update(
         self,
-        db: AsyncSession,
+        session: AsyncSession,
         **fields: str
     ) -> Model:
         self.fill(**fields)
-        return await self.save(db)
+        return await self.save(session)
 
     @classmethod
     async def get_or_create(
         cls,
-        db: Optional[AsyncSession] = None,
+        session: Optional[AsyncSession] = None,
         defaults: Optional[dict] = None,
         **kwargs: Any,
     ) -> tuple[Model, bool]:
@@ -83,16 +83,16 @@ class CRUDMixin(InspectionMixin):
         if defaults is None:
             defaults = {}
         try:
-            instance = await cls.where(**kwargs).one(db)
+            instance = await cls.where(**kwargs).one(session)
             return instance, False
         except NoResultFound:
             kwargs |= defaults or {}
-            return await cls.create(db, **kwargs), True
+            return await cls.create(session, **kwargs), True
 
     @classmethod
     async def update_or_create(
         cls,
-        db: Optional[AsyncSession] = None,
+        session: Optional[AsyncSession] = None,
         defaults: Optional[dict] = None,
         **kwargs: Any,
     ) -> tuple[Model, bool]:
@@ -103,18 +103,18 @@ class CRUDMixin(InspectionMixin):
         if defaults is None:
             defaults = {}
         try:
-            instance = await cls.where(**kwargs).one(db)
+            instance = await cls.where(**kwargs).one(session)
         except NoResultFound:
             kwargs |= defaults or {}
-            return await cls.create(db, **kwargs), True
+            return await cls.create(session, **kwargs), True
         else:
-            await instance.update(db, **defaults)
+            await instance.update(session, **defaults)
             return instance, False
 
     @classmethod
     async def find(
         cls,
-        db: Optional[AsyncSession],
+        session: Optional[AsyncSession],
         id: int,
     ) -> Model:
         """
@@ -125,7 +125,7 @@ class CRUDMixin(InspectionMixin):
 
         Raises: NoResultFound
         """
-        instance = await db.get(cls, id)
+        instance = await session.get(cls, id)
         if not instance:
             raise NoResultFound
         return instance
@@ -133,7 +133,7 @@ class CRUDMixin(InspectionMixin):
     @classmethod
     async def find_or_none(
         cls,
-        db: Optional[AsyncSession],
+        session: Optional[AsyncSession],
         id: int,
     ) -> Model:
         """
@@ -142,12 +142,12 @@ class CRUDMixin(InspectionMixin):
         Args:
             id_ (int): Primary key
         """
-        return await db.get(cls, id)
+        return await session.get(cls, id)
 
     @classmethod
     async def exists(
         cls,
-        db: AsyncSession,
+        session: AsyncSession,
         **fields: str
     ) -> bool:
         """
@@ -165,6 +165,4 @@ class CRUDMixin(InspectionMixin):
                 .exists(db, email="jondoe@gmail.com")
 
         """
-        return await exists(
-            cls.where(**fields)
-        ).select().scalar(db)
+        return await exists(cls.where(**fields)).select().scalar(session)

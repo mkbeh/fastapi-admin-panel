@@ -47,7 +47,7 @@ def _eager_expr_from_flat_schema(flat_schema: dict) -> list:
         if join_method == JOINED:
             result.append(joinedload(path))
         elif join_method == SUBQUERY:
-            result.append(subqueryload(path))
+            result.append(selectinload(path))
         else:
             raise ValueError("Bad join method `{}` in `{}`".format(join_method, path))
     return result

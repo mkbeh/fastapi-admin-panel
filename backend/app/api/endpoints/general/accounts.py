@@ -83,7 +83,7 @@ async def create_account(
         raise errors.AccountAlreadyExist
 
     return await Account.create(
-        db=db,
+        session=db,
         skip_confirmation=True,
         **schema_in.dict(exclude={'password2'})
     )
@@ -133,7 +133,7 @@ async def account_registration(
         raise errors.AccountAlreadyExist
 
     account = await Account.create(
-        db=db,
+        session=db,
         email=schema_in.email,
         password=schema_in.password,
     )
