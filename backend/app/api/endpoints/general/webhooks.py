@@ -11,10 +11,10 @@ from helpers import help_auth
 from services import socials
 from services.mailing import messages
 
-from extra.enums import SocialTypes
+from extra.enums import SocialTypes, SocialActions
 from core.security import generate_token
 
-from api.deps import deps_auth
+from api.deps import deps_auth, deps_account
 from api.responses import with_errors
 
 
@@ -68,6 +68,7 @@ async def change_password(
 async def social_login(
     social_type: SocialTypes,
     code: str,
+    state: schemas.SocialState = Depends(deps_account.get_social_state),
     error: Optional[str] = None,
     error_description: Optional[str] = None,
     db: AsyncSession = Depends(deps_auth.db_session)
@@ -79,6 +80,16 @@ async def social_login(
         )
 
     schema = await socials.get_user_schema(social_type, code)
+
+    if state.action_type == SocialActions.bind:
+        try:
+            await socials.bind_social(schema, state)
+        except errors.SocialAlreadyBoundToAnotherUser:
+            return RedirectResponse(
+                f'/connect/error?error={errors.SocialAlreadyBoundToAnotherUser.__doc__}'
+            )
+        return RedirectResponse('/personal_area')
+
     if not schema.email:
         # user doesn't have an email in social profile
         return RedirectResponse(f'/connect/mail?code={code}')

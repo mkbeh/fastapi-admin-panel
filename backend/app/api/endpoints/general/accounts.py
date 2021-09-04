@@ -34,7 +34,8 @@ async def get_me(
 
 @router.get(
     "/{object_id}",
-    response_model=schemas.Account
+    response_model=schemas.Account,
+    responses=with_errors(errors.object_not_found(Account))
 )
 async def read_account_by_id(
     object_id: int,
@@ -92,6 +93,7 @@ async def create_account(
 @router.put(
     "/{object_id}",
     response_model=schemas.AccountInDB,
+    responses=with_errors(errors.object_not_found(Account))
 )
 async def update_account(
     *,
@@ -107,7 +109,8 @@ async def update_account(
 
 @router.delete(
     "/{object_id}",
-    response_model=schemas.ResultResponse
+    response_model=schemas.ResultResponse,
+    responses=with_errors(errors.object_not_found(Account))
 )
 async def delete_object_by_id(
     object_id: int,

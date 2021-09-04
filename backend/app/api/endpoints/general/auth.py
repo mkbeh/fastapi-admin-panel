@@ -25,7 +25,10 @@ router = APIRouter()
 @router.post(
     "/access-token",
     response_model=schemas.AuthToken,
-    responses=with_errors(errors.LoginError)
+    responses=with_errors(
+        errors.LoginError,
+        errors.AccountIsNotConfirmed,
+    )
 )
 async def access_token(
     params: schemas.LoginParams = Body(
@@ -59,7 +62,10 @@ async def refresh_token(
 
 @router.get(
     '/user_is_auth',
-    responses=with_errors(errors.BadToken, errors.NotEnoughPrivileges)
+    responses=with_errors(
+        errors.BadToken,
+        errors.NotEnoughPrivileges
+    )
 )
 async def user_is_auth(
     _: models.Account = Depends(deps_account.get_current_active_user)
@@ -95,6 +101,21 @@ async def get_social_login_url(
 
 
 @router.post(
+    '/social/token',
+    response_model=schemas.AuthToken,
+    responses={
+        status.HTTP_200_OK: {'description': 'Token response'},
+        status.HTTP_400_BAD_REQUEST: {'description': 'Bad request'},
+    }
+)
+async def social_login_get_token(
+    form: schemas.GetTokenBySocialCode = Body(...),
+) -> Any:
+    """Obtaining a login token after successful authorization in social networks."""
+    return socials.get_token(form.code)
+
+
+@router.post(
     '/social/send_confirmation_email',
     response_model=schemas.ResultResponse,
     responses={
@@ -112,3 +133,78 @@ async def social_login_send_confirmation_email(
     """Email confirmation for social login, if the email was not provided."""
     await socials.send_confirmation_email(db, form)
     return schemas.ResultResponse()
+
+
+@router.get(
+    '/social/{social_type}/bind',
+    response_model=schemas.DataUrl,
+    responses=with_errors(errors.SocilaAlreadyBound)
+)
+async def bind_social(
+    social_type: enums.SocialTypes,
+    account: models.Account = Depends(deps_account.get_current_active_user),
+    social_net: models.SocialIntegration = Depends(deps_account.get_social),
+) -> Any:
+    """Bind social network."""
+    if social_net:
+        raise errors.SocilaAlreadyBound
+
+    url = socials.get_url_to_redirect(
+        social_type=social_type,
+        social_action=enums.SocialActions.bind,
+        account_id=account.id,
+    )
+    return schemas.DataUrl(url=url)
+
+
+@router.get(
+    '/social/{social_type}/unbind',
+    response_model=schemas.ResultResponse,
+    responses=with_errors(
+        errors.SocialNotBound,
+        errors.DeletePrimaryAccountDenied,
+    )
+)
+async def unbind_social(
+    social_net: models.SocialIntegration = Depends(deps_account.get_social),
+    account: models.Account = Depends(deps_account.get_current_active_user),
+    db: AsyncSession = Depends(deps_auth.db_session),
+) -> Any:
+    """Unbind social network."""
+    if not social_net:
+        raise errors.SocialNotBound
+
+    has_form_auth = await models.AuthorizationData.exists(
+        session=db,
+        account_id=account.id,
+        registration_type=enums.RegistrationTypes.forms,
+    )
+
+    if not has_form_auth:
+        bind_socials_count = await models.AuthorizationData.where(
+            account_id=account.id,
+            registration_type=enums.RegistrationTypes.social,
+        ).count(db)
+
+        if bind_socials_count < 2:
+            raise errors.DeletePrimaryAccountDenied
+
+    auth = await models.AuthorizationData.where(social_data__id=social_net.id).first(db)
+    await auth.delete()
+
+    return schemas.ResultResponse()
+
+
+@router.get(
+    '/social',
+    response_model=list[schemas.Social]
+)
+async def get_bound_socials(
+    account: models.Account = Depends(deps_account.get_current_active_user),
+    db: AsyncSession = Depends(deps_auth.db_session),
+) -> Any:
+    """Retrieve a user's list of bound socials."""
+    return await models.SocialIntegration.where(
+        auth_data___account_id=account.id,
+        auth_data___registration_type=enums.RegistrationTypes.social,
+    ).all(db)
