@@ -8,6 +8,8 @@
 
 Backend stack using Python , including interactive API documentation and many useful features out of the box.
 
+[Backend API Docs](https://github.com/mkbeh/fastapi-admin-panel/tree/main/backend/README.md).
+
 
 ## Interactive API documentation
 

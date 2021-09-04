@@ -97,3 +97,7 @@ class SocialState(BaseModel):
     secret: str
     action_type: SocialActions
     account_id: Optional[int] = None
+
+
+class Social(BaseModel):
+    social_type: SocialTypes

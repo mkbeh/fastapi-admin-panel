@@ -101,6 +101,21 @@ async def get_social_login_url(
 
 
 @router.post(
+    '/social/token',
+    response_model=schemas.AuthToken,
+    responses={
+        status.HTTP_200_OK: {'description': 'Token response'},
+        status.HTTP_400_BAD_REQUEST: {'description': 'Bad request'},
+    }
+)
+async def social_login_get_token(
+    form: schemas.GetTokenBySocialCode = Body(...),
+) -> Any:
+    """Obtaining a login token after successful authorization in social networks."""
+    return socials.get_token(form.code)
+
+
+@router.post(
     '/social/send_confirmation_email',
     response_model=schemas.ResultResponse,
     responses={
@@ -178,3 +193,18 @@ async def unbind_social(
     await auth.delete()
 
     return schemas.ResultResponse()
+
+
+@router.get(
+    '/social',
+    response_model=list[schemas.Social]
+)
+async def get_bound_socials(
+    account: models.Account = Depends(deps_account.get_current_active_user),
+    db: AsyncSession = Depends(deps_auth.db_session),
+) -> Any:
+    """Retrieve a user's list of bound socials."""
+    return await models.SocialIntegration.where(
+        auth_data___account_id=account.id,
+        auth_data___registration_type=enums.RegistrationTypes.social,
+    ).all(db)
