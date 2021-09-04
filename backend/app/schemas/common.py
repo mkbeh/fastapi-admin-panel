@@ -19,3 +19,7 @@ class ResultResponse(BaseModel):
         success = True
 
     result: Status = Status.success
+
+
+class DataUrl(BaseModel):
+    url: str

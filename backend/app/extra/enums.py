@@ -22,3 +22,8 @@ class SocialTypes(str, Enum):
     vk = "vk"
     google = "google"
     facebook = "facebook"
+
+
+class SocialActions(str, Enum):
+    registration = "registration"
+    bind = "bind"

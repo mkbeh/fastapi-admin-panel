@@ -112,3 +112,63 @@ async def social_login_send_confirmation_email(
     """Email confirmation for social login, if the email was not provided."""
     await socials.send_confirmation_email(db, form)
     return schemas.ResultResponse()
+
+
+@router.get(
+    '/social/{social_type}/bind',
+    response_model=schemas.DataUrl,
+    responses=with_errors(errors.SocilaAlreadyBound)
+)
+async def bind_social(
+    social_type: enums.SocialTypes,
+    account: models.Account = Depends(deps_account.get_current_active_user),
+    social_net: models.SocialIntegration = Depends(deps_account.get_social),
+) -> Any:
+    """Bind social network."""
+    if social_net:
+        raise errors.SocilaAlreadyBound
+
+    url = socials.get_url_to_redirect(
+        social_type=social_type,
+        social_action=enums.SocialActions.bind,
+        account_id=account.id,
+    )
+    return schemas.DataUrl(url=url)
+
+
+@router.get(
+    '/social/{social_type}/unbind',
+    response_model=schemas.ResultResponse,
+    responses=with_errors(
+        errors.SocialNotBound,
+        errors.DeletePrimaryAccountDenied,
+    )
+)
+async def unbind_social(
+    social_net: models.SocialIntegration = Depends(deps_account.get_social),
+    account: models.Account = Depends(deps_account.get_current_active_user),
+    db: AsyncSession = Depends(deps_auth.db_session),
+) -> Any:
+    """Unbind social network."""
+    if not social_net:
+        raise errors.SocialNotBound
+
+    has_form_auth = await models.AuthorizationData.exists(
+        session=db,
+        account_id=account.id,
+        registration_type=enums.RegistrationTypes.forms,
+    )
+
+    if not has_form_auth:
+        bind_socials_count = await models.AuthorizationData.where(
+            account_id=account.id,
+            registration_type=enums.RegistrationTypes.social,
+        ).count(db)
+
+        if bind_socials_count < 2:
+            raise errors.DeletePrimaryAccountDenied
+
+    auth = await models.AuthorizationData.where(social_data__id=social_net.id).first(db)
+    await auth.delete()
+
+    return schemas.ResultResponse()

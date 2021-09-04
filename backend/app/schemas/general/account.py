@@ -54,4 +54,4 @@ class AccountInDB(AccountInDBBase):
 # Properties to receive via API on creation open.
 class AccountCreateOpen(BaseModel):
     email: EmailStr = Field(..., title='Email')
-    password: str = Field(..., min_length=6, max_length=255, title='Пароль')
+    password: str = Field(..., min_length=8, max_length=48, title='Пароль')

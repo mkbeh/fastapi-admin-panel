@@ -1,6 +1,7 @@
 from typing import Optional
 
 import httpx
+import ujson
 from pydantic import ValidationError
 from aiogoogle import AiogoogleError
 
@@ -22,29 +23,50 @@ from core.security import generate_token
 from services.mailing import messages
 
 
-def get_url_to_redirect(social_type: enums.SocialTypes) -> Optional[str]:
+def get_url_to_redirect(
+    social_type: enums.SocialTypes,
+    social_action: enums.SocialActions,
+    account_id: int = None,
+) -> Optional[str]:
     """Getting a link for OAuth authorization"""
     # first step in authorization - url to redirect user browser
+    state = get_state(
+        social_action=social_action,
+        account_id=account_id,
+    )
+
     if social_type == enums.SocialTypes.vk:
         url = f'https://oauth.vk.com/authorize?client_id={settings.OAUTH_VK_CLIENT_ID}'\
-              f'&redirect_uri={settings.OAUTH_VK_REDIRECT_URI}'\
-              f'&scope=email&response_type=code&display=popup&v=5.124'
+            f'&redirect_uri={settings.OAUTH_VK_REDIRECT_URI}'\
+            f'&scope=email&response_type=code&display=popup&v=5.124'\
+            f'&state={state}'
 
     elif social_type == enums.SocialTypes.facebook:
         url = f'https://www.facebook.com/v8.0/dialog/oauth?'\
-              f'client_id={settings.OAUTH_FB_CLIENT_ID}'\
-              f'&redirect_uri={settings.OAUTH_FB_REDIRECT_URI}'\
-              f'&scope=email&response_type=code'\
-              f'&state={create_state()}'
+            f'client_id={settings.OAUTH_FB_CLIENT_ID}'\
+            f'&redirect_uri={settings.OAUTH_FB_REDIRECT_URI}'\
+            f'&scope=email&response_type=code'\
+            f'&state={state}'
 
     elif social_type == enums.SocialTypes.google:
         url = sessions.google_session.openid_connect.authorization_url(
-            state=create_state(),
+            state=state,
             nonce=create_state(),
             include_granted_scopes=True,
         )
 
     return url
+
+
+def get_state(social_action: enums.SocialActions, account_id: int = None) -> str:
+    params = dict(
+        secret=create_state(),
+        action_type=social_action.value,
+    )
+
+    if social_action == enums.SocialActions.bind:
+        params.update(account_id=account_id)
+    return ujson.dumps(params)
 
 
 async def get_facebook_user(code: str) -> schemas.RegistrationFromSocialFacebook:
@@ -290,3 +312,39 @@ async def registration(
 
     # store account_id for next frontend retrieval
     __social_user_cache[code].application_account_id = account_id
+
+
+async def bind_social(
+    db: AsyncSession,
+    schema: types.SocialRegistrationSchema,
+    state: schemas.SocialState,
+) -> None:
+    social_type, external_id = schema.get_type_and_user_id()
+
+    is_social = await SocialIntegration.exists(
+        session=db,
+        external_id=external_id,
+        social_type=social_type,
+        auth_data__account_id__not=state.account_id,
+    )
+
+    if is_social:
+        raise errors.SocialAlreadyBoundToAnotherUser
+
+    if not schema.email:
+        account = await Account.where(id=state.account_id).only('email').one(db)
+        schema.email = account.email
+
+    auth_data = await AuthorizationData.create(
+        session=db,
+        account_id=state.account_id,
+        registration_type=enums.RegistrationTypes.social,
+        login=schema.email,
+        hashed_password=get_random_string(),
+    )
+    await SocialIntegration.create(
+        session=db,
+        auth_data_id=auth_data.id,
+        social_type=social_type,
+        external_id=external_id
+    )
