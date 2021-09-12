@@ -25,7 +25,10 @@ router = APIRouter()
 @router.post(
     "/access-token",
     response_model=schemas.AuthToken,
-    responses=with_errors(errors.LoginError)
+    responses=with_errors(
+        errors.LoginError,
+        errors.AccountIsNotConfirmed,
+    )
 )
 async def access_token(
     params: schemas.LoginParams = Body(
@@ -59,7 +62,10 @@ async def refresh_token(
 
 @router.get(
     '/user_is_auth',
-    responses=with_errors(errors.BadToken, errors.NotEnoughPrivileges)
+    responses=with_errors(
+        errors.BadToken,
+        errors.NotEnoughPrivileges
+    )
 )
 async def user_is_auth(
     _: models.Account = Depends(deps_account.get_current_active_user)
@@ -92,6 +98,21 @@ async def get_social_login_url(
         url = '/personal_area'
 
     return RedirectResponse(url)
+
+
+@router.post(
+    '/social/token',
+    response_model=schemas.AuthToken,
+    responses={
+        status.HTTP_200_OK: {'description': 'Token response'},
+        status.HTTP_400_BAD_REQUEST: {'description': 'Bad request'},
+    }
+)
+async def social_login_get_token(
+    form: schemas.GetTokenBySocialCode = Body(...),
+) -> Any:
+    """Obtaining a login token after successful authorization in social networks."""
+    return socials.get_token(form.code)
 
 
 @router.post(

@@ -12,5 +12,5 @@ def get_random_string(length: int = 16) -> str:
     return ''.join(random.choices(_population, k=length))
 
 
-def create_secret(bytes_length=1024):
+def create_secret(bytes_length: int = 1024) -> str:
     return hashlib.sha256(os.urandom(bytes_length)).hexdigest()
