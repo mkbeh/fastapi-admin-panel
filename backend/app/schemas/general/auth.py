@@ -1,7 +1,7 @@
-from typing import Optional, Tuple, Any
+from typing import Optional
 from pydantic import Field, EmailStr
 
-from extra.enums import SocialTypes, SocialActions
+from extra.enums import SocialTypes
 from schemas.base import BaseModel
 
 
@@ -72,7 +72,7 @@ class RegistrationFromSocialFacebook(RegistationFromSocialBase):
     name: str
     email: Optional[EmailStr]
 
-    def get_type_and_user_id(self) -> Tuple[str, str]:
+    def get_type_and_user_id(self):
         return self._social_type, self.id
 
 
@@ -91,13 +91,3 @@ class RegistrationFromSocialGoogle(RegistationFromSocialBase):
 
     def get_type_and_user_id(self):
         return self._social_type, self.id
-
-
-class SocialState(BaseModel):
-    secret: str
-    action_type: SocialActions
-    account_id: Optional[int] = None
-
-
-class Social(BaseModel):
-    social_type: SocialTypes
