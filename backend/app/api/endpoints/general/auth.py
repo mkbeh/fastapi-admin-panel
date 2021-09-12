@@ -95,6 +95,21 @@ async def get_social_login_url(
 
 
 @router.post(
+    '/social/token',
+    response_model=schemas.AuthToken,
+    responses={
+        status.HTTP_200_OK: {'description': 'Token response'},
+        status.HTTP_400_BAD_REQUEST: {'description': 'Bad request'},
+    }
+)
+async def social_login_get_token(
+    form: schemas.GetTokenBySocialCode = Body(...),
+) -> Any:
+    """Obtaining a login token after successful authorization in social networks."""
+    return socials.get_token(form.code)
+
+
+@router.post(
     '/social/send_confirmation_email',
     response_model=schemas.ResultResponse,
     responses={
